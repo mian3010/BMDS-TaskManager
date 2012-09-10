@@ -21,6 +21,7 @@ import Examples.SimpleTcpClient;
 public class TaskManagerTCPClient {
   Socket socket;
   Scanner keyboard = new Scanner(System.in);
+  InputStream is;
 
   public TaskManagerTCPClient(InetAddress inetAddress, int serverPort) {
     try {
@@ -31,7 +32,7 @@ public class TaskManagerTCPClient {
       DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
       // Get the inputstream to receive data sent by server.
-      InputStream is = socket.getInputStream();
+      is = socket.getInputStream();
 
       // based on the type of data we want to read, we will open suitbale
       // input stream.
@@ -67,6 +68,7 @@ public class TaskManagerTCPClient {
     System.out.println("Write POST to add a task");
 
     while (true) {
+      // If user has input
       if (keyboard.hasNext()) {
         String text = keyboard.next().toLowerCase().trim();
         switch (text){
@@ -87,6 +89,9 @@ public class TaskManagerTCPClient {
           break;
         }
       }
+      
+      // If server has input
+      
     }
   }
 
