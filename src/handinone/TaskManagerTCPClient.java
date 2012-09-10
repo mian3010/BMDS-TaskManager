@@ -51,7 +51,7 @@ public class TaskManagerTCPClient {
       if (message.equals(responce))
         run();
       else {
-        System.err.println("Server error");
+        Log.error("Server error");
         System.exit(0);
       }
     } catch (IOException ex) {
