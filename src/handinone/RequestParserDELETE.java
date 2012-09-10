@@ -11,8 +11,8 @@ import java.net.Socket;
  * @author Claus
  * 
  */
-public class RequestParserDELETEt extends RequestParser {
-  public RequestParserDELETEt(Socket con, InetAddress source) throws IOException {
+public class RequestParserDELETE extends RequestParser {
+  public RequestParserDELETE(Socket con, InetAddress source) throws IOException {
     super(con, source);
   }
 

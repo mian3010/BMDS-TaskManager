@@ -11,8 +11,8 @@ import java.net.Socket;
  * @author Claus
  * 
  */
-public class RequestParserPOSTt extends RequestParser {
-  public RequestParserPOSTt(Socket con, InetAddress source) throws IOException {
+public class RequestParserPOST extends RequestParser {
+  public RequestParserPOST(Socket con, InetAddress source) throws IOException {
     super(con, source);
   }
 

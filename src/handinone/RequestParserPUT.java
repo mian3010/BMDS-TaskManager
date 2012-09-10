@@ -10,8 +10,8 @@ import java.net.Socket;
  * @author Claus
  * 
  */
-public class RequestParserPUTt extends RequestParser {
-  public RequestParserPUTt(Socket con, InetAddress source) throws IOException {
+public class RequestParserPUT extends RequestParser {
+  public RequestParserPUT(Socket con, InetAddress source) throws IOException {
     super(con, source);
   }
 
