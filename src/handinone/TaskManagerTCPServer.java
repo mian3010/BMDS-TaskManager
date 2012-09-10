@@ -1,9 +1,9 @@
 package handinone;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -46,14 +46,33 @@ public enum TaskManagerTCPServer {
         InetAddress client = ss.getInetAddress();
         if (commands.containsKey(client)) {
           // Create a new thread for parsing the request
-          //RequestParser p = new RequestParser(con, client);
-          // Start the request
-          //p.start();
+          String className = RequestParser.getClassName(commands.get(client));
+          try {
+            @SuppressWarnings("unchecked")
+            Class<RequestParser> classDefinition = (Class<RequestParser>) Class.forName(className);
+            @SuppressWarnings("rawtypes")
+            Class[] constructorArgumentTypes = new Class[] {Socket.class, InetAddress.class};
+            Object[] constructorArguments = new Object[] {con, client};
+            Constructor<RequestParser> constructor = classDefinition.getConstructor(constructorArgumentTypes);
+            RequestParser p = constructor.newInstance(constructorArguments);
+            // Start the request
+            p.start();
+          } catch (InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException|SecurityException|NoSuchMethodException e) {
+            e.printStackTrace();
+          } catch (ClassNotFoundException e) {
+            RequestParser.returnError(con, client); //Should not happen EVER
+          }
         } else {
           String request = RequestParser.getRequest(con);
-          commands.put(client, request);
-          DataOutputStream out = RequestParser.getOutputStream(con);
-          RequestParser.writeUTF(out, request);
+          try {
+            @SuppressWarnings({ "unchecked", "unused" })
+            Class<RequestParser> classDefinition = (Class<RequestParser>) Class.forName(RequestParser.getClassName(request));
+            commands.put(client, request);
+            DataOutputStream out = RequestParser.getOutputStream(con);
+            RequestParser.writeUTF(out, request);
+          } catch (ClassNotFoundException e) {
+            RequestParser.returnError(con, client);
+          }
         }
       } catch (IOException e) {
         System.err.println(e);
