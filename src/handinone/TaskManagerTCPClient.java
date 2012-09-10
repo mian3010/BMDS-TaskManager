@@ -44,11 +44,11 @@ public class TaskManagerTCPClient {
 
       // Receive responce and print
       String responce = dis.readUTF();
-      System.out.println("Message from server: " + responce);
+      System.err.println("Message from server: " + responce);
       if (message.equals(responce))
         run();
       else {
-        System.out.println("Server error");
+        System.err.println("Server error");
         System.exit(0);
       }
     } catch (IOException ex) {
@@ -61,15 +61,49 @@ public class TaskManagerTCPClient {
   private void run() {
     System.out.println("Connection created");
     System.out.println("Press Q to quit");
+    System.out.println("Write GET to receive a list of tasks");
+    System.out.println("Write PUT to change a task");
+    System.out.println("Write DELETE to delete a task");
+    System.out.println("Write POST to add a task");
 
     while (true) {
       if (keyboard.hasNext()) {
         String text = keyboard.next().toLowerCase().trim();
-        if (text.equals("q")) {
+        switch (text){
+        case "q":
           stop();
+          break;
+        case "get":
+          get();
+          break;
+        case "put":
+          put();
+          break;
+        case "delete":
+          delete();
+          break;
+        case "post":
+          post();
+          break;
         }
       }
     }
+  }
+
+  private void post() {
+    System.out.println("Do something");
+  }
+
+  private void delete() {
+    System.out.println("Do something");
+  }
+
+  private void put() {
+    System.out.println("Do something");
+  }
+
+  private void get() {
+    System.out.println("Do something");
   }
 
   private void stop() {
