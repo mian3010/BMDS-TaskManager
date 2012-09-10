@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,6 +20,7 @@ import Examples.SimpleTcpClient;
  */
 public class TaskManagerTCPClient {
   Socket socket;
+  Scanner keyboard = new Scanner(System.in);
 
   public TaskManagerTCPClient(InetAddress inetAddress, int serverPort) {
     try {
@@ -43,19 +45,44 @@ public class TaskManagerTCPClient {
       // Receive responce and print
       String responce = dis.readUTF();
       System.out.println("Message from server: " + responce);
+      if (message.equals(responce))
+        run();
+      else {
+        System.out.println("Server error");
+        System.exit(0);
+      }
     } catch (IOException ex) {
       Logger.getLogger(SimpleTcpClient.class.getName()).log(Level.SEVERE, null,
           ex);
-
       System.out.println("error message: " + ex.getMessage());
-    } finally {
-      // Finnaly close the socket.
+    }
+  }
+
+  private void run() {
+    System.out.println("Connection created");
+    System.out.println("Press Q to quit");
+
+    while (true) {
+      if (keyboard.hasNext()) {
+        String text = keyboard.next().toLowerCase().trim();
+        if (text.equals("q")) {
+          stop();
+        }
+      }
+    }
+  }
+
+  private void stop() {
+    System.out.println("Program will now exit");
+    // close the socket
+    if (!socket.isClosed()) {
       try {
         socket.close();
       } catch (IOException e) {
         System.out.println("error message: " + e.getMessage());
       }
     }
+    System.exit(0);
   }
 
   /**
