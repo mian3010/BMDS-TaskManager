@@ -45,9 +45,6 @@ public class TaskManagerTCPClient {
 			// Receive responce and print
 			String responce = dis.readUTF();
 			System.out.println("Message from server: " + responce);
-
-						
-			
 		} catch (IOException ex) {
 			Logger.getLogger(SimpleTcpClient.class.getName()).log(Level.SEVERE,
 					null, ex);
