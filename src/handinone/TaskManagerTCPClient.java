@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,27 +18,20 @@ import Examples.SimpleTcpClient;
  * 
  */
 public class TaskManagerTCPClient {
+	Socket socket;
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
+	public TaskManagerTCPClient(InetAddress inetAddress, int serverPort) {
 		try {
-			// IP address of the server,
-			InetAddress serverAddress = InetAddress.getByName("localhost");
-
-			// It is the same port where server will be listening.
-			int serverPort = 7896;
-
 			// Open a socket for communication.
-			Socket socket = new Socket(serverAddress, serverPort);
-
+			socket = new Socket(inetAddress, serverPort);
+			
 			// Get data output stream to send a String message to server.
 			DataOutputStream dos = new DataOutputStream(
-					socket.getOutputStream());
-
+			socket.getOutputStream());
+			
+			
 			// Get the inputstream to receive data sent by server.
-			InputStream is = socket.getInputStream();
+						InputStream is = socket.getInputStream();
 
 			// based on the type of data we want to read, we will open suitbale
 			// input stream.
@@ -47,19 +41,40 @@ public class TaskManagerTCPClient {
 			String message = "Ping";
 			dos.writeUTF(message);
 			dos.flush();
-			
+
 			// Receive responce and print
 			String responce = dis.readUTF();
 			System.out.println("Message from server: " + responce);
 
-			// Finnaly close the socket.
-			socket.close();
+						
+			
 		} catch (IOException ex) {
 			Logger.getLogger(SimpleTcpClient.class.getName()).log(Level.SEVERE,
 					null, ex);
 
 			System.out.println("error message: " + ex.getMessage());
+		} finally {
+			// Finnaly close the socket.
+			try {
+				socket.close();
+			} catch (IOException e) {
+				System.out.println("error message: " + e.getMessage());
+			}
 		}
 	}
 
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		int serverPort = 7896;
+		InetAddress ip = null; // TODO something
+		try {
+			ip = InetAddress.getByName("localhost");
+		} catch (UnknownHostException e) {
+			System.err.println("error message: " + e.getMessage());
+		}
+		
+		new TaskManagerTCPClient(ip, serverPort);
+	}
 }
