@@ -1,46 +1,54 @@
 package handinone;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.net.InetAddress;
 import java.net.Socket;
 
-public class RequestParser extends Thread {
-  private String request;
-  
-  private Socket con;
-  private InputStream is;
-  private DataInputStream dis = null;
-  private DataOutputStream out;
-  
-  public RequestParser(Socket con) throws IOException {
+public abstract class RequestParser extends Thread {
+  protected String request;
+  protected InetAddress source;
+
+  protected Socket con;
+  protected DataOutputStream out;
+
+  public RequestParser(Socket con, InetAddress source) throws IOException {
     this.con = con;
-    
-    is = con.getInputStream();
-    dis = new DataInputStream(is);
-    request = dis.readUTF();
-    con.shutdownInput();    
-    out = new DataOutputStream(con.getOutputStream());
+    this.source = source;
+
+    request = getRequest(con);
+    out = getOutputStream(con);
+  }
+
+  public static DataOutputStream getOutputStream(Socket con) throws IOException {
+    return new DataOutputStream(con.getOutputStream());
+  }
+
+  public static String getRequest(Socket con) throws IOException {
+    InputStream is = con.getInputStream();
+    DataInputStream dis = new DataInputStream(is);
+    String request = dis.readUTF();
+    con.shutdownInput();
+    return request;
+  }
+
+  public static void writeUTF(DataOutputStream out, String message)
+      throws IOException {
+    out.writeUTF(message);
+    out.flush();
   }
   
-  public void run() {
-    if (request != null) {
-      try {
-        parseRequest(request);
-        out.flush();
-        con.close();
-      } catch (IOException e) {
-        System.err.println(e);
-      }
-    }
+  public static void returnError(Socket con, InetAddress client) throws IOException {
+    RequestParser.writeUTF(RequestParser.getOutputStream(con), "Command not found");
   }
   
-  public void parseRequest(String request) throws IOException {
-    out.writeUTF(request);
+  public static String getClassName(String command) {
+    return "RequestParser"+command.toUpperCase();
   }
+
+  public abstract void run();
+
+  public abstract void parseRequest(String request) throws IOException;
 }
