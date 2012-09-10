@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package dk.itu.smds.e2012.lab02.serialization.test;
+package Examples;
 
-import dk.itu.smds.e2012.lab02.serialization.common.Student;
-import dk.itu.smds.e2012.lab02.serialization.common.University;
+import Examples.Student;
+import Examples.University;
 import java.io.*;
 import java.util.ListIterator;
 import java.util.logging.Level;

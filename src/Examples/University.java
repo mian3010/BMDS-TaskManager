@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package dk.itu.smds.e2012.lab02.serialization.common;
+package Examples;
 
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
