@@ -39,6 +39,14 @@ public abstract class RequestParser extends Thread {
     out.writeUTF(message);
     out.flush();
   }
+  
+  public static void returnError(Socket con, InetAddress client) throws IOException {
+    RequestParser.writeUTF(RequestParser.getOutputStream(con), "Command not found");
+  }
+  
+  public static String getClassName(String command) {
+    return "RequestParser"+command.toUpperCase();
+  }
 
   public abstract void run();
 

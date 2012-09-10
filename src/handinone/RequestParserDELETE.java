@@ -5,14 +5,14 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 /**
- * Add a task to the task list
+ * Delete an item from the task list
  * 
  * @author BieberFever
  * @author Claus
  * 
  */
-public class RequestParserPost extends RequestParser {
-  public RequestParserPost(Socket con, InetAddress source) throws IOException {
+public class RequestParserDELETE extends RequestParser {
+  public RequestParserDELETE(Socket con, InetAddress source) throws IOException {
     super(con, source);
   }
 
