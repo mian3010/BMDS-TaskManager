@@ -1,8 +1,10 @@
 package handinone;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
 
 /**
  * @author BieberFever
@@ -36,7 +38,7 @@ public enum TaskManagerTCPServer {
         // the server
         Socket con = ss.accept();
         // Create a new thread for parsing the request
-        RequestParser p = new RequestParser(con);
+        RequestParser p = new RequestParser(con, ss.getInetAddress());
         // Start the request
         p.start();
       } catch (IOException e) {
@@ -44,4 +46,7 @@ public enum TaskManagerTCPServer {
       }
     }
 	}
+	public static void log(InetAddress client, String msg) {
+    System.err.println(new Date() + ": from "+client+" - "+ msg);
+  }
 }
