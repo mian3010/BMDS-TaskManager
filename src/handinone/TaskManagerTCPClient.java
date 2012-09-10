@@ -22,6 +22,8 @@ public class TaskManagerTCPClient {
   Socket socket;
   Scanner keyboard = new Scanner(System.in);
   InputStream is;
+  DataInputStream dis;
+  DataOutputStream dos;
 
   public TaskManagerTCPClient(InetAddress inetAddress, int serverPort) {
     try {
@@ -29,14 +31,14 @@ public class TaskManagerTCPClient {
       socket = new Socket(inetAddress, serverPort);
 
       // Get data output stream to send a String message to server.
-      DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+      dos = new DataOutputStream(socket.getOutputStream());
 
       // Get the inputstream to receive data sent by server.
       is = socket.getInputStream();
 
       // based on the type of data we want to read, we will open suitbale
       // input stream.
-      DataInputStream dis = new DataInputStream(is);
+      dis = new DataInputStream(is);
 
       // Send message
       String message = "Ping";
@@ -67,7 +69,10 @@ public class TaskManagerTCPClient {
     System.out.println("Write DELETE to delete a task");
     System.out.println("Write POST to add a task");
 
+    String in;
     while (true) {
+      in = null; //reset
+      
       // If user has input
       if (keyboard.hasNext()) {
         String text = keyboard.next().toLowerCase().trim();
@@ -90,25 +95,61 @@ public class TaskManagerTCPClient {
         }
       }
       
-      // If server has input
-      
+      // If server has message
+      try {
+        if ((in = dis.readUTF()) != null){
+          in = "Message from server: " + in;
+          System.out.println(in);
+          Log.log(in);
+        }
+      } catch (IOException e) {
+        Log.error(e.getMessage());
+      }
     }
   }
 
   private void post() {
     System.out.println("Do something");
+    String request = "POST";
+    try {
+      dos.writeUTF(request);
+      dos.flush();
+    } catch (IOException e) {
+      Log.error(e.getMessage());
+    }
   }
 
   private void delete() {
     System.out.println("Do something");
+    String request = "DELETE";
+    try {
+      dos.writeUTF(request);
+      dos.flush();
+    } catch (IOException e) {
+      Log.error(e.getMessage());
+    }
   }
 
   private void put() {
     System.out.println("Do something");
+    String request = "PUT";
+    try {
+      dos.writeUTF(request);
+      dos.flush();
+    } catch (IOException e) {
+      Log.error(e.getMessage());
+    }
   }
 
   private void get() {
     System.out.println("Do something");
+    String request = "GET";
+    try {
+      dos.writeUTF(request);
+      dos.flush();
+    } catch (IOException e) {
+      Log.error(e.getMessage());
+    }
   }
 
   private void stop() {
