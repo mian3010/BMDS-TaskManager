@@ -9,22 +9,22 @@ import java.util.Date;
 /**
  * @author BieberFever
  * @author Claus
- *
+ * 
  */
 public enum TaskManagerTCPServer {
   INSTANCE;
 
-	/**
-	 * @author BieberFever
-	 * @param args
-	 */
-	public static void main(String[] args) {
-	  TaskManagerTCPServer.INSTANCE.run(7896);
-	}
-	
-	public void run(int port) {
-	  ServerSocket ss = null;
-	  try {
+  /**
+   * @author BieberFever
+   * @param args
+   */
+  public static void main(String[] args) {
+    TaskManagerTCPServer.INSTANCE.run(7896);
+  }
+
+  public void run(int port) {
+    ServerSocket ss = null;
+    try {
       ss = new ServerSocket(port);
     } catch (IOException e) {
       System.err.println("Could not start server: " + e);
@@ -45,8 +45,9 @@ public enum TaskManagerTCPServer {
         System.err.println(e);
       }
     }
-	}
-	public static void log(InetAddress client, String msg) {
-    System.err.println(new Date() + ": from "+client+" - "+ msg);
+  }
+
+  public static void log(InetAddress client, String msg) {
+    System.err.println(new Date() + ": from " + client + " - " + msg);
   }
 }
