@@ -1,10 +1,14 @@
 package handinone;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * @author BieberFever
@@ -13,6 +17,8 @@ import java.util.Date;
  */
 public enum TaskManagerTCPServer {
   INSTANCE;
+  
+  HashMap<InetAddress, String> commands = new HashMap<InetAddress, String>();
 
   /**
    * @author BieberFever
@@ -37,10 +43,18 @@ public enum TaskManagerTCPServer {
         // Listens for request. It stays on this line until a request is made to
         // the server
         Socket con = ss.accept();
-        // Create a new thread for parsing the request
-        RequestParser p = new RequestParser(con, ss.getInetAddress());
-        // Start the request
-        p.start();
+        InetAddress client = ss.getInetAddress();
+        if (commands.containsKey(client)) {
+          // Create a new thread for parsing the request
+          //RequestParser p = new RequestParser(con, client);
+          // Start the request
+          //p.start();
+        } else {
+          String request = RequestParser.getRequest(con);
+          commands.put(client, request);
+          DataOutputStream out = RequestParser.getOutputStream(con);
+          RequestParser.writeUTF(out, request);
+        }
       } catch (IOException e) {
         System.err.println(e);
       }

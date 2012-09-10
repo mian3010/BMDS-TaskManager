@@ -1,36 +1,19 @@
 package handinone;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
 /**
  * Add a task to the task list
+ * 
  * @author BieberFever
  * @author Claus
- *
+ * 
  */
 public class RequestParserPost extends RequestParser {
-  private String request;
-  private InetAddress source;
-
-  private Socket con;
-  private InputStream is;
-  private DataInputStream dis;
-  private DataOutputStream out;
-
   public RequestParserPost(Socket con, InetAddress source) throws IOException {
-    this.con = con;
-    this.source = source;
-
-    is = con.getInputStream();
-    dis = new DataInputStream(is);
-    request = dis.readUTF();
-    con.shutdownInput();
-    out = new DataOutputStream(con.getOutputStream());
+    super(con, source);
   }
 
   public void run() {
