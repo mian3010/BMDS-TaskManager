@@ -1,2 +1,0 @@
-Tue Sep 11 10:49:32 CEST 2012: Message from server: POST
-Tue Sep 11 10:49:36 CEST 2012: Software caused connection abort: recv failed
