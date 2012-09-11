@@ -45,7 +45,6 @@ public enum TaskManagerTCPServer {
         Socket con = ss.accept();
         InetAddress client = ss.getInetAddress();
         if (commands.containsKey(client)) {
-          // Create a new thread for parsing the request
           String className = RequestParser.getClassName(commands.get(client));
           try {
             @SuppressWarnings("unchecked")
