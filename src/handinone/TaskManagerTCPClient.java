@@ -19,37 +19,38 @@ import Examples.SimpleTcpClient;
  * 
  */
 public class TaskManagerTCPClient {
-  Socket socket;
-  Scanner keyboard = new Scanner(System.in);
-  InputStream is;
+  private Socket socket;
+  private Scanner keyboard = new Scanner(System.in);
+  private InputStream is;
+  private DataInputStream dis;
+  private DataOutputStream dos;
+  private InetAddress inetAddress;
+  private int serverPort;
 
   public TaskManagerTCPClient(InetAddress inetAddress, int serverPort) {
+    this.inetAddress = inetAddress;
+    this.serverPort = serverPort;
+    initialize();
+  }
+
+  private void initialize() {
     try {
       // Open a socket for communication.
       socket = new Socket(inetAddress, serverPort);
 
       // Get data output stream to send a String message to server.
-      DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+      dos = new DataOutputStream(socket.getOutputStream());
 
       // Get the inputstream to receive data sent by server.
       is = socket.getInputStream();
 
-      // based on the type of data we want to read, we will open suitbale
-      // input stream.
-      DataInputStream dis = new DataInputStream(is);
+      // Create data input stream.
+      dis = new DataInputStream(is);
 
-      // Send message
-      String message = "Ping";
-      dos.writeUTF(message);
-      dos.flush();
-
-      // Receive responce and print
-      String responce = dis.readUTF();
-      System.err.println("Message from server: " + responce);
-      if (message.equals(responce))
+      if (socket.isConnected())
         run();
       else {
-        System.err.println("Server error");
+        Log.error("Server error");
         System.exit(0);
       }
     } catch (IOException ex) {
@@ -61,18 +62,22 @@ public class TaskManagerTCPClient {
 
   private void run() {
     System.out.println("Connection created");
-    System.out.println("Press Q to quit");
+    System.out.println("Write QUIT to quit");
     System.out.println("Write GET to receive a list of tasks");
     System.out.println("Write PUT to change a task");
     System.out.println("Write DELETE to delete a task");
     System.out.println("Write POST to add a task");
 
+    String in;
     while (true) {
+      in = null; // reset
+
       // If user has input
       if (keyboard.hasNext()) {
         String text = keyboard.next().toLowerCase().trim();
-        switch (text){
+        switch (text) {
         case "q":
+        case "quit":
           stop();
           break;
         case "get":
@@ -87,32 +92,72 @@ public class TaskManagerTCPClient {
         case "post":
           post();
           break;
+        case "reset":
+        case "r":
+          close();
+          initialize();
+          break;
         }
       }
-      
-      // If server has input
-      
+
+      // If server has message
+      try {
+        if ((in = dis.readUTF()) != null) {
+          in = "Message from server: " + in;
+          System.out.println(in);
+          Log.log(in);
+        }
+      } catch (IOException e) {
+        Log.error(e.getMessage());
+      }
     }
   }
 
   private void post() {
     System.out.println("Do something");
+    String request = "POST";
+    try {
+      dos.writeUTF(request);
+      dos.flush();
+    } catch (IOException e) {
+      Log.error(e.getMessage());
+    }
   }
 
   private void delete() {
     System.out.println("Do something");
+    String request = "DELETE";
+    try {
+      dos.writeUTF(request);
+      dos.flush();
+    } catch (IOException e) {
+      Log.error(e.getMessage());
+    }
   }
 
   private void put() {
     System.out.println("Do something");
+    String request = "PUT";
+    try {
+      dos.writeUTF(request);
+      dos.flush();
+    } catch (IOException e) {
+      Log.error(e.getMessage());
+    }
   }
 
   private void get() {
     System.out.println("Do something");
+    String request = "GET";
+    try {
+      dos.writeUTF(request);
+      dos.flush();
+    } catch (IOException e) {
+      Log.error(e.getMessage());
+    }
   }
 
-  private void stop() {
-    System.out.println("Program will now exit");
+  private void close() {
     // close the socket
     if (!socket.isClosed()) {
       try {
@@ -121,6 +166,12 @@ public class TaskManagerTCPClient {
         System.out.println("error message: " + e.getMessage());
       }
     }
+  }
+
+  private void stop() {
+    System.out.println("Program will now exit");
+    // close the socket
+    close();
     System.exit(0);
   }
 
