@@ -19,11 +19,11 @@ import Examples.SimpleTcpClient;
  * 
  */
 public class TaskManagerTCPClient {
-  Socket socket;
-  Scanner keyboard = new Scanner(System.in);
-  InputStream is;
-  DataInputStream dis;
-  DataOutputStream dos;
+  private Socket socket;
+  private Scanner keyboard = new Scanner(System.in);
+  private InputStream is;
+  private DataInputStream dis;
+  private DataOutputStream dos;
 
   public TaskManagerTCPClient(InetAddress inetAddress, int serverPort) {
     try {
@@ -36,19 +36,10 @@ public class TaskManagerTCPClient {
       // Get the inputstream to receive data sent by server.
       is = socket.getInputStream();
 
-      // based on the type of data we want to read, we will open suitbale
-      // input stream.
+      // Create data input stream.
       dis = new DataInputStream(is);
 
-      // Send message
-      String message = "Ping";
-      dos.writeUTF(message);
-      dos.flush();
-
-      // Receive responce and print
-      String responce = dis.readUTF();
-      System.err.println("Message from server: " + responce);
-      if (message.equals(responce))
+      if (socket.isConnected())
         run();
       else {
         Log.error("Server error");

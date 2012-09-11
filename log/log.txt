@@ -1,1 +1,1 @@
-Mon Sep 10 23:44:07 CEST 2012: Server error
+Tue Sep 11 10:26:43 CEST 2012: Message from server: Command not found
