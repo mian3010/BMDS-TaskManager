@@ -62,7 +62,7 @@ public class TaskManagerTCPClient {
 
   private void run() {
     System.out.println("Connection created");
-    System.out.println("Press Q to quit");
+    System.out.println("Write QUIT to quit");
     System.out.println("Write GET to receive a list of tasks");
     System.out.println("Write PUT to change a task");
     System.out.println("Write DELETE to delete a task");
@@ -77,6 +77,7 @@ public class TaskManagerTCPClient {
         String text = keyboard.next().toLowerCase().trim();
         switch (text) {
         case "q":
+        case "quit":
           stop();
           break;
         case "get":
@@ -92,6 +93,7 @@ public class TaskManagerTCPClient {
           post();
           break;
         case "reset":
+        case "r":
           close();
           initialize();
           break;
