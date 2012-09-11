@@ -45,7 +45,7 @@ public abstract class RequestParser extends Thread {
   }
   
   public static String getClassName(String command) {
-    return "RequestParser"+command.toUpperCase();
+    return "handinone.RequestParser"+command.toUpperCase();
   }
 
   public abstract void run();
