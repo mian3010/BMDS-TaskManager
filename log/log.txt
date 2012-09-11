@@ -1,1 +1,2 @@
-Tue Sep 11 10:26:43 CEST 2012: Message from server: Command not found
+Tue Sep 11 10:47:47 CEST 2012: Message from server: Command not found
+Tue Sep 11 10:47:50 CEST 2012: Software caused connection abort: recv failed

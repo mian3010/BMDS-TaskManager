@@ -24,8 +24,16 @@ public class TaskManagerTCPClient {
   private InputStream is;
   private DataInputStream dis;
   private DataOutputStream dos;
+  private InetAddress inetAddress;
+  private int serverPort;
 
   public TaskManagerTCPClient(InetAddress inetAddress, int serverPort) {
+    this.inetAddress = inetAddress;
+    this.serverPort = serverPort;
+    initialize();
+  }
+
+  private void initialize() {
     try {
       // Open a socket for communication.
       socket = new Socket(inetAddress, serverPort);
@@ -62,12 +70,12 @@ public class TaskManagerTCPClient {
 
     String in;
     while (true) {
-      in = null; //reset
-      
+      in = null; // reset
+
       // If user has input
       if (keyboard.hasNext()) {
         String text = keyboard.next().toLowerCase().trim();
-        switch (text){
+        switch (text) {
         case "q":
           stop();
           break;
@@ -83,12 +91,16 @@ public class TaskManagerTCPClient {
         case "post":
           post();
           break;
+        case "reset":
+          close();
+          initialize();
+          break;
         }
       }
-      
+
       // If server has message
       try {
-        if ((in = dis.readUTF()) != null){
+        if ((in = dis.readUTF()) != null) {
           in = "Message from server: " + in;
           System.out.println(in);
           Log.log(in);
@@ -143,8 +155,7 @@ public class TaskManagerTCPClient {
     }
   }
 
-  private void stop() {
-    System.out.println("Program will now exit");
+  private void close() {
     // close the socket
     if (!socket.isClosed()) {
       try {
@@ -153,6 +164,12 @@ public class TaskManagerTCPClient {
         System.out.println("error message: " + e.getMessage());
       }
     }
+  }
+
+  private void stop() {
+    System.out.println("Program will now exit");
+    // close the socket
+    close();
     System.exit(0);
   }
 
