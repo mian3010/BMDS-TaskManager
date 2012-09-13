@@ -18,7 +18,7 @@ import java.util.HashMap;
 public enum TaskManagerTCPServer {
   INSTANCE;
   
-  HashMap<InetAddress, String> commands = new HashMap<InetAddress, String>();
+  HashMap<InetAddress, Class<RequestParser>> commands = new HashMap<>();
 
   /**
    * @author BieberFever
@@ -45,10 +45,8 @@ public enum TaskManagerTCPServer {
         Socket con = ss.accept();
         InetAddress client = ss.getInetAddress();
         if (commands.containsKey(client)) {
-          String className = RequestParser.getClassName(commands.get(client));
           try {
-            @SuppressWarnings("unchecked")
-            Class<RequestParser> classDefinition = (Class<RequestParser>) Class.forName(className);
+            Class<RequestParser> classDefinition = commands.get(client);
             @SuppressWarnings("rawtypes")
             Class[] constructorArgumentTypes = new Class[] {Socket.class, InetAddress.class};
             Object[] constructorArguments = new Object[] {con, client};
@@ -58,15 +56,13 @@ public enum TaskManagerTCPServer {
             p.start();
           } catch (InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException|SecurityException|NoSuchMethodException e) {
             e.printStackTrace();
-          } catch (ClassNotFoundException e) {
-            RequestParser.returnError(con, client); //Should not happen EVER
           }
         } else {
           String request = RequestParser.getRequest(con);
           try {
-            @SuppressWarnings({ "unchecked", "unused" })
+            @SuppressWarnings({ "unchecked" })
             Class<RequestParser> classDefinition = (Class<RequestParser>) Class.forName(RequestParser.getClassName(request));
-            commands.put(client, request);
+            commands.put(client, classDefinition);
             DataOutputStream out = RequestParser.getOutputStream(con);
             RequestParser.writeUTF(out, request);
           } catch (ClassNotFoundException e) {
