@@ -1,7 +1,7 @@
 package handinone;
 
 import java.io.File;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -14,15 +14,15 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder={"users", "tasks"})
 public class Calendar {
 	
-	private Set<User> users;
-	private Set<Task> tasks;
+	private ArrayList<User> users;
+	private ArrayList<Task> tasks;
 	
 	public Calendar() {
-		users = new HashSet<User>();
-		tasks = new HashSet<Task>();
+		users = new ArrayList<User>();
+		tasks = new ArrayList<Task>();
 	}
 	
-	public Calendar(Set<User> users, Set<Task> tasks) {
+	public Calendar(ArrayList<User> users, ArrayList<Task> tasks) {
 		this.users = users;
 		this.tasks = tasks;
 	}
@@ -37,11 +37,11 @@ public class Calendar {
 	
 	@XmlElementWrapper(name = "users")
 	@XmlElement(name = "user")
-	public Set<User> getUsers() {
+	public ArrayList<User> getUsers() {
 		return users;
 	}
 
-	public void setUsers(Set<User> users) {
+	public void setUsers(ArrayList<User> users) {
 		this.users = users;
 	}
 
@@ -55,12 +55,12 @@ public class Calendar {
 	
 	@XmlElementWrapper(name = "tasks")
 	@XmlElement(name = "task")
-	public Set<Task> getTasks() {
+	public ArrayList<Task> getTasks() {
 		return tasks;
 	}
 
 
-	public void setTasks(Set<Task> tasks) {
+	public void setTasks(ArrayList<Task> tasks) {
 		this.tasks = tasks;
 	}
 
@@ -80,9 +80,10 @@ public class Calendar {
 		//unmarshall
 		try {
 			Calendar cal2 = (Calendar) CalendarMarshaller.getUnmarshaller(cal).unmarshal(new File("./bossen.xml"));
-			String idCheck = cal2.getTasks().iterator().next().getId(); //Okay, maybe we should use an ordered list instead of a set :)
-			if (idCheck.equals("42") || idCheck.equals("2")) 
-			System.out.println("Unmarshall succesfull");
+			String idCheck = cal2.getTasks().get(0).getId(); //Okay, maybe we should use an ordered list instead of a set :)
+			if (idCheck.equals("42")) { 
+				System.out.println("Unmarshall succesfull");
+			}
 		} catch (Exception ex) {
 			System.out.println("Unmarshall failed");
 		}
