@@ -42,16 +42,12 @@ public class TaskManagerTCPClient {
     try {
       // Open a socket for communication.
       socket = new Socket(inetAddress, serverPort);
-
       // Get data output stream to send a String message to server.
       dos = new DataOutputStream(socket.getOutputStream());
-
       // Get the inputstream to receive data sent by server.
       is = socket.getInputStream();
-
       // Create data input stream.
       dis = new DataInputStream(is);
-
       if (socket.isConnected())
         run();
       else {
@@ -119,7 +115,7 @@ public class TaskManagerTCPClient {
   }
 
   private void post() {
-    String request = "POST";
+    String request = "post";
     if (check(request)) {
       // int id, String name, String date, String status, String description, String attendant
       System.out.println("Please enter the name of the task");
@@ -144,7 +140,7 @@ public class TaskManagerTCPClient {
   }
 
   private void delete() {
-    String request = "DELETE";
+    String request = "delete";
     // Check if server is ready for request
     if (check(request)) {
       // Get taskID from user
@@ -174,26 +170,27 @@ public class TaskManagerTCPClient {
   }
 
   private void put() {
-    String request = "PUT";
+    String request = "put";
     // Check if server is ready for request
     if (check(request)) {
       // Get taskID from user
       int id = getInt();
       // Get task
-      ArrayList<Task> tasks = null;
+      Task task = null;
       try {
         Calendar cal = (Calendar) ObjectMarshaller.getUnmarshaller(
             new Calendar()).unmarshal(dis);
-        tasks = cal.getTasks();
+        ArrayList<Task> tasks = cal.getTasks();
         if (tasks.isEmpty()) {
           System.out.println("No task by that ID");
           run();
         }
+        task = tasks.get(0);
       } catch (JAXBException e) {
         Log.error(e.getMessage());
       }
       // List task as is
-      System.out.println(tasks.get(0));
+      System.out.println(task);
       // Which field does user want to edit?
       while (true) {
         System.out
@@ -203,13 +200,15 @@ public class TaskManagerTCPClient {
           break;
       }
       // Send task to server
+      ObjectMarshaller.marshall(task, dos);
+      System.out.println("Task saved");
     }
     // Return
     run();
   }
 
   private void get() {
-    String request = "GET";
+    String request = "get";
     // Check if server is ready for request
     if (check(request)) {
       // Get userID from user
@@ -252,7 +251,7 @@ public class TaskManagerTCPClient {
    */
   private String getString() {
     String input = keyboard.next().toLowerCase().trim();
-    // Did the user want to cancel?
+    // Did user want to cancel?
     if (input.equals("q"))
       run();
     return input;
@@ -294,10 +293,10 @@ public class TaskManagerTCPClient {
   private boolean check(String request) {
     String in = "";
     try {
-      dos.writeUTF(request);
+      dos.writeUTF(request.trim().toLowerCase());
       dos.flush();
 
-      in = dis.readUTF();
+      in = dis.readUTF().trim().toLowerCase();
     } catch (IOException e) {
       Log.error(e.getMessage());
       return false;
