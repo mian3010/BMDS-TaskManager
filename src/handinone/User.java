@@ -44,4 +44,23 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	
+	/**
+	 * This implementation assumes that all users are unique by their id.
+	 */
+	public int hashCode() {
+		return 37 * getId();
+	}
+	
+	/**
+	 * This implementation assumes that all users are unique by their id.
+	 */
+	public boolean equals(Object o) {
+		if(this == o) return true;
+		if(o instanceof User) {
+			User u = (User)o;
+			if(u.getId() == getId()) return true;
+		}
+		return false;
+	}
 }
