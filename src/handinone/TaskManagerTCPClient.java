@@ -34,10 +34,10 @@ public class TaskManagerTCPClient {
   public TaskManagerTCPClient(InetAddress inetAddress, int serverPort) {
     this.inetAddress = inetAddress;
     this.serverPort = serverPort;
-    run();
+    initialize();
   }
 
-  private void openConnection() {
+  private void initialize() {
     try {
       // Open a socket for communication.
       socket = new Socket(inetAddress, serverPort);
@@ -47,7 +47,9 @@ public class TaskManagerTCPClient {
       is = socket.getInputStream();
       // Create data input stream.
       dis = new DataInputStream(is);
-      if (!socket.isConnected()) {
+      if (socket.isConnected())
+        run();
+      else {
         Log.error("Server error");
         System.exit(0);
       }
@@ -55,17 +57,6 @@ public class TaskManagerTCPClient {
       Logger.getLogger(SimpleTcpClient.class.getName()).log(Level.SEVERE, null,
           ex);
       System.out.println("error message: " + ex.getMessage());
-    }
-  }
-  
-  private void writeToServer(String str) {
-    openConnection();
-    try {
-      dos.writeUTF(str);
-      dos.flush();
-      socket.close();
-    } catch (IOException e) {
-      e.printStackTrace();
     }
   }
 
@@ -101,10 +92,11 @@ public class TaskManagerTCPClient {
         case "post":
           post();
           break;
-//        case "reset":
-//        case "r":
-//          closeConnection();
-//          break;
+        case "reset":
+        case "r":
+          close();
+          initialize();
+          break;
         }
       }
 
@@ -213,7 +205,6 @@ public class TaskManagerTCPClient {
     // Check if server is ready for request
     if (check(request)) {
       // Get taskID from user
-      System.out.print("Input the ID of the task you want to edit: ");
       int id = getInt();
       if(id < 0){
         cancelRequest();
@@ -243,39 +234,7 @@ public class TaskManagerTCPClient {
           cancelRequest();
           return;
         }
-        else if (in == 0) break;
-        else {
-        	//EDITORZINGLOL
-        	switch(in) {
-        		case(1): //id
-        			System.out.print("Enter new ID: ");
-        			task.setId(getInt());
-        			break;
-        		case(2): //name
-        			System.out.print("Enter new name: ");
-        			task.setName(getString());
-        			break;
-        		case(3): //date
-        			System.out.print("Enter new date: ");
-    				task.setDate(getString());
-    			break;
-        		case(4): //status
-        			System.out.print("Enter new status: ");
-    				task.setStatus(getString());
-        			break;
-        		case(5): //description
-        			System.out.print("Enter new description: ");
-        			task.setDescription(getString());
-        			break;
-        		case(6): //attendant id
-        			System.out.print("Enter new attendantID: ");
-    				task.setAttendantid(getInt());
-        			break;
-    			default:
-    				System.out.println("Please enter a number in the valid range.");
-    				break;
-        	}
-        }
+        if (in == 0) break;
       }
       // Send task to server
       ObjectMarshaller.marshall(task, dos);
@@ -345,17 +304,29 @@ public class TaskManagerTCPClient {
    * @return int
    */
   private int getInt() {
+    String in = keyboard.next().toLowerCase().trim();
     int input = -1;
     while (true)
       try {
-    	String in = keyboard.next().toLowerCase().trim();
-    	if(in.equals("q")) break;
         input = Integer.parseInt(in);
         break;
       } catch (NumberFormatException e) {
-        System.out.println("Not an integer! Please type a number or type Q to canel");
+        // Did the user want to cancel?
+        if (in.equals("q")) return -1;
+        System.out.println("Invalid userID. Please type a number or type Q to canel");
       }
     return input;
+  }
+
+  private void close() {
+    // close the socket
+    if (!socket.isClosed()) {
+      try {
+        socket.close();
+      } catch (IOException e) {
+        System.out.println("error message: " + e.getMessage());
+      }
+    }
   }
 
   private boolean check(String request) {
@@ -380,6 +351,7 @@ public class TaskManagerTCPClient {
   private void stop() {
     System.out.println("Program will now exit");
     // close the socket
+    close();
     System.exit(0);
   }
 
