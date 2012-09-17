@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
@@ -18,9 +19,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "cal")
 @XmlType(propOrder={"users", "tasks"})
 public class Calendar {
-	
   private static HashMap<Integer, User> users = new HashMap<>();
-  private static HashMap<Integer, ArrayList<Task>> tasks = new HashMap<>();
+  private static HashMap<Integer, HashSet<Task>> tasks = new HashMap<>();
 	
 	public Calendar() {}
 	
@@ -40,7 +40,7 @@ public class Calendar {
 	
 	public void addUser(User user) {
 		users.put(user.getId(), user);
-		tasks.put(user.getId(), new ArrayList<Task>());
+		tasks.put(user.getId(), new HashSet<Task>());
 	}
 	
 	public void removeUser(String userid) {
@@ -77,21 +77,21 @@ public class Calendar {
 	@XmlElement(name = "task")
 	public ArrayList<Task> getTasks() {
 	  ArrayList<Task> tasksReturn = new ArrayList<>();
-	  for (Map.Entry<Integer, ArrayList<Task>> taskslist : tasks.entrySet()) {
+	  for (Map.Entry<Integer, HashSet<Task>> taskslist : tasks.entrySet()) {
 	    tasksReturn.addAll(taskslist.getValue());
 	  }
 		return tasksReturn;
 	}
 
 
-	public void setTasks(ArrayList<Task> tasklist) {
+	public void setTasks(HashSet<Task> tasklist) {
 		for (Task task : tasklist) {
 		  if (tasks.containsKey(task.getAttendantid())) tasks.get(task.getAttendantid()).add(task);
 		  else throw new IllegalArgumentException("No such user");
 		}
 	}
 	
-	public ArrayList<Task> getListOfTasks(int userid) {
+	public HashSet<Task> getListOfTasks(int userid) {
 	  return tasks.get(userid);
 	}
 	
@@ -138,7 +138,4 @@ public class Calendar {
 	      e.printStackTrace();
 	    }
 	}
-	
-
-	
 }
