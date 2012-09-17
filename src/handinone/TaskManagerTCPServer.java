@@ -76,6 +76,7 @@ public enum TaskManagerTCPServer {
           }
         } else {
           String request = RequestParser.getRequest(con);
+          log(client, request);
           try {
             @SuppressWarnings({ "unchecked" })
             Class<RequestParser> classDefinition = (Class<RequestParser>) Class.forName(RequestParser.getClassName(request));

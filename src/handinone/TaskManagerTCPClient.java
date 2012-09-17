@@ -1,5 +1,6 @@
 package handinone;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -33,10 +34,10 @@ public class TaskManagerTCPClient {
   public TaskManagerTCPClient(InetAddress inetAddress, int serverPort) {
     this.inetAddress = inetAddress;
     this.serverPort = serverPort;
-    initialize();
+    run();
   }
 
-  private void initialize() {
+  private void openConnection() {
     try {
       // Open a socket for communication.
       socket = new Socket(inetAddress, serverPort);
@@ -46,9 +47,7 @@ public class TaskManagerTCPClient {
       is = socket.getInputStream();
       // Create data input stream.
       dis = new DataInputStream(is);
-      if (socket.isConnected())
-        run();
-      else {
+      if (!socket.isConnected()) {
         Log.error("Server error");
         System.exit(0);
       }
@@ -69,6 +68,7 @@ public class TaskManagerTCPClient {
 
     String in;
     while (true) {
+      openConnection();
       in = null; // reset
 
       // If user has input
@@ -91,11 +91,10 @@ public class TaskManagerTCPClient {
         case "post":
           post();
           break;
-        case "reset":
-        case "r":
-          close();
-          initialize();
-          break;
+//        case "reset":
+//        case "r":
+//          closeConnection();
+//          break;
         }
       }
 
@@ -109,6 +108,7 @@ public class TaskManagerTCPClient {
       } catch (IOException e) {
         Log.error(e.getMessage());
       }
+      closeConnection();
     }
   }
 
@@ -213,8 +213,7 @@ public class TaskManagerTCPClient {
       // Get task
       Task task = null;
       try {
-        Calendar cal = (Calendar) ObjectMarshaller.getUnmarshaller(
-            new Calendar()).unmarshal(dis);
+        Calendar cal = (Calendar) ObjectMarshaller.getUnmarshaller(Calendar.class).unmarshal(dis);
         ArrayList<Task> tasks = cal.getTasks();
         if (tasks.isEmpty()) {
           System.out.println("No task by that ID");
@@ -297,10 +296,11 @@ public class TaskManagerTCPClient {
       // Receive calendar with tasks
       ArrayList<Task> tasks = null;
       try {
-        Calendar cal = (Calendar) ObjectMarshaller.getUnmarshaller(
-            new Calendar()).unmarshal(dis);
+        String response = dis.readUTF();
+        InputStream is = new ByteArrayInputStream(response.getBytes());
+        Calendar cal = (Calendar) ObjectMarshaller.getUnmarshaller(Calendar.class).unmarshal(is);
         tasks = cal.getTasks();
-      } catch (JAXBException e) {
+      } catch (JAXBException | IOException e) {
         Log.error(e.getMessage());
       }
       // Print
@@ -349,7 +349,7 @@ public class TaskManagerTCPClient {
     return input;
   }
 
-  private void close() {
+  private void closeConnection() {
     // close the socket
     if (!socket.isClosed()) {
       try {
@@ -382,7 +382,7 @@ public class TaskManagerTCPClient {
   private void stop() {
     System.out.println("Program will now exit");
     // close the socket
-    close();
+    closeConnection();
     System.exit(0);
   }
 
