@@ -2,7 +2,6 @@ package handinone;
 
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -32,22 +31,15 @@ public enum TaskManagerTCPServer {
    */
   public static void main(String[] args) {
     try {
-      TaskManagerTCPServer.INSTANCE.loadCalendar(calendarfile);
+      TaskManagerTCPServer.INSTANCE.calendar = Calendar.loadCalendar(calendarfile);
       TaskManagerTCPServer.INSTANCE.run(7896);
     } catch (JAXBException|IOException e) {
       System.out.println("Could not load or create calendar file");
     }
   }
   
-  public static void generateEmptyCalendar(File calendarfile) throws IOException {
-    calendarfile.createNewFile();
-    Calendar c = new Calendar();
-    CalendarMarshaller.marshall(c, new FileOutputStream(calendarfile));
-  }
-  
-  public void loadCalendar(File calendarfile) throws JAXBException, IOException {
-    if (!calendarfile.exists()) generateEmptyCalendar(calendarfile);
-     calendar = (Calendar) CalendarMarshaller.getUnmarshaller(calendar).unmarshal(calendarfile);
+  public Calendar getCalendar() {
+    return calendar;
   }
 
   public void run(int port) {

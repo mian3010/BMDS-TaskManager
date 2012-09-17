@@ -30,6 +30,6 @@ public class RequestParserGET extends RequestParser {
 
   public void parseRequest(String request) throws IOException {
     TaskManagerTCPServer.log(source, request);
-    out.writeUTF(request);
+    Calendar cal = TaskManagerTCPServer.INSTANCE.getCalendar();
   }
 }
