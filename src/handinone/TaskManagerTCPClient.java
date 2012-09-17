@@ -298,7 +298,7 @@ public class TaskManagerTCPClient {
   }
 
   /**
-   * Get interger from user
+   * Get integer from user
    * 
    * @return int
    */
