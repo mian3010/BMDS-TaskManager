@@ -126,8 +126,8 @@ public class TaskManagerTCPClient {
       String status = getString();
       System.out.println("Please enter any description of the task");
       String description = getString();
-      System.out.println("Please enter the attendant of the task");
-      String attendant = getString();
+      System.out.println("Please enter userID of the task attendant");
+      int attendant = getInt();
       // Create task
       // ID is redefined by server
       Task task = new Task(0, name, date, status, description, attendant);
