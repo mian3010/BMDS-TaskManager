@@ -94,16 +94,16 @@ public class Calendar {
   public static void generateEmptyCalendar(File calendarfile) throws IOException {
     calendarfile.createNewFile();
     Calendar c = new Calendar();
-    CalendarMarshaller.marshall(c, new FileOutputStream(calendarfile));
+    ObjectMarshaller.marshall(c, new FileOutputStream(calendarfile));
   }
   
   public static Calendar loadCalendar(File calendarfile) throws JAXBException, IOException {
     if (!calendarfile.exists()) Calendar.generateEmptyCalendar(calendarfile);
-     return (Calendar) CalendarMarshaller.getUnmarshaller(new Calendar()).unmarshal(calendarfile);
+     return (Calendar) ObjectMarshaller.getUnmarshaller(new Calendar()).unmarshal(calendarfile);
   }
   
   public static void saveCalendar(Calendar calendar, File calendarfile) throws FileNotFoundException {
-    CalendarMarshaller.marshall(calendar, new FileOutputStream(calendarfile));
+    ObjectMarshaller.marshall(calendar, new FileOutputStream(calendarfile));
   }
 
 	public static void main (String[] args) {
@@ -120,12 +120,12 @@ public class Calendar {
 		cal.addTask(task2);
 		
 		//marshall
-		CalendarMarshaller.marshall(cal, "./bossen.xml");
+		ObjectMarshaller.marshall(cal, "./bossen.xml");
 		System.out.println("Marshall succesfull");
 		//unmarshall
 		Calendar cal2 = new Calendar();
     try {
-      cal2 = (Calendar) CalendarMarshaller.getUnmarshaller(cal2).unmarshal(new File("./bossen.xml"));
+      cal2 = (Calendar) ObjectMarshaller.getUnmarshaller(cal2).unmarshal(new File("./bossen.xml"));
   		for (Task task : cal2.getTasks()) {
   		  System.out.println(task);
   		}
