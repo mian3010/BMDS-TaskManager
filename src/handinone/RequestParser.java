@@ -51,6 +51,7 @@ public abstract class RequestParser extends Thread {
 
   public void run() {
     if (request != null) {
+      TaskManagerTCPServer.log(source, request);
       try {
         parseRequest(request);
         out.flush();

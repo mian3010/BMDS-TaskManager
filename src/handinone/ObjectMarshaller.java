@@ -46,9 +46,10 @@ public class ObjectMarshaller {
 		}
 	}
 	
-	public static Unmarshaller getUnmarshaller(Object obj) {
+	@SuppressWarnings("rawtypes")
+  public static Unmarshaller getUnmarshaller(Class objClass) {
 		try {
-			JAXBContext jc = JAXBContext.newInstance(obj.getClass());
+			JAXBContext jc = JAXBContext.newInstance(objClass);
 			return jc.createUnmarshaller();
 		} catch (Exception e) {
 			System.out.println("Exception: " + e.getMessage());
