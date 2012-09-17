@@ -80,7 +80,7 @@ public class Calendar {
 		//unmarshall
 		try {
 			Calendar cal2 = (Calendar) CalendarMarshaller.getUnmarshaller(cal).unmarshal(new File("./bossen.xml"));
-			String idCheck = cal2.getTasks().get(0).getId(); //Okay, maybe we should use an ordered list instead of a set :)
+			String idCheck = cal2.getTasks().get(0).getId();
 			if (idCheck.equals("42")) { 
 				System.out.println("Unmarshall succesfull");
 			}
