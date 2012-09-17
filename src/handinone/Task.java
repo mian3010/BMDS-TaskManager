@@ -11,7 +11,10 @@ public class Task {
 	private int id, attendantid;
 	private String name, date, status, description;
 	
-	public Task() {}
+	/**
+	 * Creates an object in an unstable state, but is used by XML Reflection generation.
+	 */
+	private Task() {}
 	
 	public Task(int id, String name, String date, String status, String description,int attendantid) {
 		this.id = id;
@@ -78,12 +81,12 @@ public class Task {
 	@Override
 	public String toString(){
 	  String print = "";
-	  print += "Task ID: " + id + "\n";
-	  print += "Task name: " + name + "\n";
-	  print += "Task date: " + date + "\n";
-	  print += "Task status: " + status + "\n";
-	  print += "Task description: " + description + "\n";
-	  print += "Task attendant: " + attendantid;
+	  print += "#1 Task ID: " + id + "\n";
+	  print += "#2 Task name: " + name + "\n";
+	  print += "#3 Task date: " + date + "\n";
+	  print += "#4 Task status: " + status + "\n";
+	  print += "#5 Task description: " + description + "\n";
+	  print += "#6 Task attendant: " + attendantid;
 	  return print;
 	}
 	
