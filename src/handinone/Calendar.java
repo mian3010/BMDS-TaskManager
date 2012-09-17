@@ -19,8 +19,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder={"users", "tasks"})
 public class Calendar {
 	
-  private static HashMap<Integer, User> users = new HashMap<>();
-  private static HashMap<Integer, ArrayList<Task>> tasks = new HashMap<>();
+  private HashMap<Integer, User> users = new HashMap<>();
+  private HashMap<Integer, ArrayList<Task>> tasks = new HashMap<>();
 	
 	public Calendar() {}
 	
@@ -34,7 +34,7 @@ public class Calendar {
 		}
 	}
 	
-	public static User getUser(int id) {
+	public User getUser(int id) {
 	  return users.get(id);
 	}
 	

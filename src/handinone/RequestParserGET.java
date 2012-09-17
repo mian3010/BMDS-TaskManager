@@ -20,7 +20,11 @@ public class RequestParserGET extends RequestParser {
   public void parseRequest(String request) throws IOException {
     TaskManagerTCPServer.log(source, request);
     Calendar cal = TaskManagerTCPServer.INSTANCE.getCalendar(); 
-    ArrayList<Task> taskList = cal.getListOfTasks(Integer.parseInt(request));
-    ObjectMarshaller.marshall(taskList, out);
+    int id = Integer.parseInt(request);
+    ArrayList<Task> taskList = cal.getListOfTasks(id);
+    Calendar cal2 = new Calendar();
+    cal2.addUser(cal.getUser(id));
+    cal2.setTasks(taskList);
+    ObjectMarshaller.marshall(cal2, out);
   }
 }

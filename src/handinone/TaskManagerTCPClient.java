@@ -214,7 +214,7 @@ public class TaskManagerTCPClient {
       int in = getInt();
       // Write userID to server
       try {
-        dos.writeInt(in);
+        dos.writeUTF(""+in);
       } catch (IOException e) {
         Log.error(e.getMessage());
       }
