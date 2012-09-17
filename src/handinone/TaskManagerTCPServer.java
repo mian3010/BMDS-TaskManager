@@ -1,6 +1,8 @@
 package handinone;
 
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -10,6 +12,8 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.xml.bind.JAXBException;
+
 /**
  * @author BieberFever
  * @author Claus
@@ -18,14 +22,32 @@ import java.util.HashMap;
 public enum TaskManagerTCPServer {
   INSTANCE;
   
-  HashMap<InetAddress, RequestParser> commands = new HashMap<>();
+  private HashMap<InetAddress, RequestParser> commands = new HashMap<>();
+  private Calendar calendar = new Calendar();
+  private static File calendarfile = new File("calendar.xml");
 
   /**
    * @author BieberFever
    * @param args
    */
   public static void main(String[] args) {
-    TaskManagerTCPServer.INSTANCE.run(7896);
+    try {
+      TaskManagerTCPServer.INSTANCE.loadCalendar(calendarfile);
+      TaskManagerTCPServer.INSTANCE.run(7896);
+    } catch (JAXBException|IOException e) {
+      System.out.println("Could not load or create calendar file");
+    }
+  }
+  
+  public static void generateEmptyCalendar(File calendarfile) throws IOException {
+    calendarfile.createNewFile();
+    Calendar c = new Calendar();
+    CalendarMarshaller.marshall(c, new FileOutputStream(calendarfile));
+  }
+  
+  public void loadCalendar(File calendarfile) throws JAXBException, IOException {
+    if (!calendarfile.exists()) generateEmptyCalendar(calendarfile);
+     calendar = (Calendar) CalendarMarshaller.getUnmarshaller(calendar).unmarshal(calendarfile);
   }
 
   public void run(int port) {
