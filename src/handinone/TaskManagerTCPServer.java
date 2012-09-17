@@ -1,5 +1,6 @@
 package handinone;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +76,8 @@ public enum TaskManagerTCPServer {
             RequestParser.returnError(con, client);
           }
         } else {
-          String request = RequestParser.getRequest(con);
+          DataInputStream dis = new DataInputStream(con.getInputStream());
+          String request = dis.readUTF();
           log(client, request);
           try {
             @SuppressWarnings({ "unchecked" })

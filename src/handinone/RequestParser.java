@@ -3,7 +3,6 @@ package handinone;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -13,26 +12,21 @@ public abstract class RequestParser extends Thread {
 
   protected Socket con;
   protected DataOutputStream out;
+  protected DataInputStream dis;
 
   public RequestParser(Socket con, InetAddress source) throws IOException {
     this.con = con;
     this.source = source;
-
-    request = getRequest(con);
     out = getOutputStream(con);
-    if (request.equals("q")) throw new IllegalArgumentException("Quit detected");
+    dis = new DataInputStream(con.getInputStream());
   }
 
   public static DataOutputStream getOutputStream(Socket con) throws IOException {
     return new DataOutputStream(con.getOutputStream());
   }
 
-  public static String getRequest(Socket con) throws IOException {
-    InputStream is = con.getInputStream();
-    DataInputStream dis = new DataInputStream(is);
-    String request = dis.readUTF();
-    con.shutdownInput();
-    return request;
+  public String getRequest(Socket con) throws IOException {
+    return dis.readUTF();
   }
 
   public static void writeUTF(DataOutputStream out, String message)
@@ -50,12 +44,15 @@ public abstract class RequestParser extends Thread {
   }
 
   public void run() {
-    if (request != null) {
-      TaskManagerTCPServer.log(source, request);
+    while (true) {
       try {
-        parseRequest(request);
-        out.flush();
-        con.close();
+        TaskManagerTCPServer.log(source, request);
+        request = getRequest(con);
+        if (request.equals("q")) throw new IllegalArgumentException("Quit detected");
+        if (request != null) {
+          parseRequest(request);
+          out.flush();
+        }
       } catch (IOException e) {
         System.err.println(e);
       }
