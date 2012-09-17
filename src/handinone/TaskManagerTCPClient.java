@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -116,44 +117,51 @@ public class TaskManagerTCPClient {
   private void post() {
     System.out.println("Do something");
     String request = "POST";
-    try {
-      dos.writeUTF(request);
-      dos.flush();
-    } catch (IOException e) {
-      Log.error(e.getMessage());
+    if(check(request)){
+      //XML Shit
     }
   }
 
   private void delete() {
     System.out.println("Do something");
     String request = "DELETE";
-    try {
-      dos.writeUTF(request);
-      dos.flush();
-    } catch (IOException e) {
-      Log.error(e.getMessage());
+    if(check(request)){
+      //XML Shit
     }
   }
 
   private void put() {
     System.out.println("Do something");
     String request = "PUT";
-    try {
-      dos.writeUTF(request);
-      dos.flush();
-    } catch (IOException e) {
-      Log.error(e.getMessage());
+    if(check(request)){
+      //XML Shit
     }
   }
 
   private void get() {
     System.out.println("Do something");
     String request = "GET";
-    try {
-      dos.writeUTF(request);
-      dos.flush();
-    } catch (IOException e) {
-      Log.error(e.getMessage());
+    if(check(request)){
+      System.out.println("Type userID");
+      String in = keyboard.next().toLowerCase().trim();
+      int input;
+      while (true)
+        try{
+          input = Integer.parseInt(in);
+          break;
+        }catch (NumberFormatException e){
+          if(in.equals("q")) run();
+          System.out.println("Invalid userID. Please type a number");
+        }
+      try {
+        dos.write(input);
+      } catch (IOException e) {
+        Log.error(e.getMessage());
+      }
+      // XML Shit
+      
+      // Return
+      run();
     }
   }
 
@@ -165,6 +173,24 @@ public class TaskManagerTCPClient {
       } catch (IOException e) {
         System.out.println("error message: " + e.getMessage());
       }
+    }
+  }
+
+  private boolean check(String request){
+    String in = "";
+    try {
+      dos.writeUTF(request);
+      dos.flush();
+    
+      in = dis.readUTF();
+    } catch (IOException e) {
+      Log.error(e.getMessage());
+      return false;
+    }
+    if(in.equals(request)) return true;
+    else {
+      Log.error(in);
+      return false;
     }
   }
 

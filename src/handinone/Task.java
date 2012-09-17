@@ -72,4 +72,16 @@ public class Task {
 	public void setAttendant(String attendant) {
 		this.attendant = attendant;
 	}
+	
+	@Override
+	public String toString(){
+	  String print = "";
+	  print += "Task ID: " + id + "\n";
+	  print += "Task name: " + name + "\n";
+	  print += "Task date: " + date + "\n";
+	  print += "Task status: " + status + "\n";
+	  print += "Task description: " + description + "\n";
+	  print += "Task attendant: " + attendant;
+	  return print;
+	}
 }
