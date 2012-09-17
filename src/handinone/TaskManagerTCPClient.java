@@ -210,6 +210,13 @@ public class TaskManagerTCPClient {
         cancelRequest();
         return;
       }
+      // Specify task
+      try {
+        dos.writeUTF(""+id);
+        dos.flush();
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
       // Get task
       Task task = null;
       try {
