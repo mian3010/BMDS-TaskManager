@@ -2,15 +2,19 @@ package handinone;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.xml.bind.JAXBException;
 
 import Examples.SimpleTcpClient;
 
@@ -139,9 +143,10 @@ public class TaskManagerTCPClient {
   }
 
   private void get() {
-    System.out.println("Do something");
     String request = "GET";
+    // Check if server is ready for request
     if(check(request)){
+      // Get userID from user
       System.out.println("Type userID");
       String in = keyboard.next().toLowerCase().trim();
       int input;
@@ -150,19 +155,36 @@ public class TaskManagerTCPClient {
           input = Integer.parseInt(in);
           break;
         }catch (NumberFormatException e){
+          // Did the user want to cancel?
           if(in.equals("q")) run();
-          System.out.println("Invalid userID. Please type a number");
+          System.out.println("Invalid userID. Please type a number or type Q to canel");
         }
+      // Write userID to server
       try {
         dos.write(input);
       } catch (IOException e) {
         Log.error(e.getMessage());
       }
-      // XML Shit
-      
-      // Return
-      run();
+      // Receive calendar with tasks
+      ArrayList<Task> tasks = null;
+      try {
+        Calendar cal = (Calendar) CalendarMarshaller.getUnmarshaller(new Calendar()).unmarshal(dis);
+        tasks = cal.getTasks();
+      } catch (JAXBException e) {
+        Log.error(e.getMessage());
+      }
+      // Print
+      if(tasks != null){
+        if(tasks.size() == 0) System.out.println("No tasks");
+        else{
+          for(Task task : tasks){
+            System.out.println("\n" + task);
+          }
+        }
+      }
     }
+    // Return
+    run();
   }
 
   private void close() {
