@@ -7,12 +7,15 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "user")
 @XmlType(propOrder={"id", "name", "password"})
 public class User {
-  private static int nextId = 0;
+	private static int nextId = 0;
 	
 	private String name, password;
 	private int userId;
 	
-	public User() {}
+	/**
+	 * Creates an object in an unstable state, but is used by XML Reflection generation.
+	 */
+	private User() {}
 	
 	public User(String name, String password) {
 		this.name = name;

@@ -11,7 +11,10 @@ public class Task {
 	private int id, attendantid;
 	private String name, date, status, description;
 	
-	public Task() {}
+	/**
+	 * Creates an object in an unstable state, but is used by XML Reflection generation.
+	 */
+	private Task() {}
 	
 	public Task(int id, String name, String date, String status, String description,int attendantid) {
 		this.id = id;
