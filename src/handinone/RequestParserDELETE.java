@@ -30,6 +30,8 @@ public class RequestParserDELETE extends RequestParser {
 
   public void parseRequest(String request) throws IOException {
     TaskManagerTCPServer.log(source, request);
-    out.writeUTF(request);
+    int id = Integer.parseInt(request);
+    if(id == 0) return;
+//    TaskManagerTCPServer.INSTANCE.getCalendar().removeTask(id);
   }
 }
