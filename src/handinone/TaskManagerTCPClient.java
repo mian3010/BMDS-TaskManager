@@ -191,6 +191,7 @@ public class TaskManagerTCPClient {
       // Delete task
       try {
         dos.writeInt(in);
+        dos.flush();
       } catch (IOException e) {
         Log.error(e.getMessage());
       }
@@ -256,6 +257,7 @@ public class TaskManagerTCPClient {
       // Write userID to server
       try {
         dos.writeInt(in);
+        dos.flush();
       } catch (IOException e) {
         Log.error(e.getMessage());
       }
