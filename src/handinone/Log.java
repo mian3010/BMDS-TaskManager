@@ -46,6 +46,7 @@ public class Log {
   private static void initialize() {
     try {
       log = new File("./log/log.txt");
+      if (!log.exists()) log.createNewFile();
       print = new PrintWriter(log);
     } catch (IOException e) {
       e.printStackTrace();
