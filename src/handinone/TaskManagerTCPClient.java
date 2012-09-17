@@ -210,7 +210,7 @@ public class TaskManagerTCPClient {
     // Check if server is ready for request
     if (check(request)) {
       // Get userID from user
-      System.out.println("Type userID");
+      System.out.println("Type userID. 0 will get you all tasks");
       int in = getInt();
       // Write userID to server
       try {
