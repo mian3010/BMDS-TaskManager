@@ -91,6 +91,10 @@ public class Calendar {
 		}
 	}
 	
+	public ArrayList<Task> getListOfTasks(int userid) {
+	  return tasks.get(userid);
+	}
+	
   public static void generateEmptyCalendar(File calendarfile) throws IOException {
     calendarfile.createNewFile();
     Calendar c = new Calendar();
