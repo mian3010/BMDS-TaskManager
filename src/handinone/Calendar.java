@@ -123,18 +123,27 @@ public class Calendar {
 	public static void main (String[] args) {
 		Calendar cal = new Calendar();
 		
-		User user1 = new User("Ole Andersen", "pw123");
-		User user2 = new User("Lise Jensen", "bieberrox");
-		Task task1 = new Task(42, "Cool Task", "12-12-12", "not done", "This is a cool task", user1.getId());
-		Task task2 = new Task(2, "OP: dbag", "04-11-91", "completed", "noob around", user2.getId());
-		
-	    cal.addUser(user1);
-	    cal.addUser(user2);
+		User user1 = new User("Niclas Tollstorff", "pw123");
+		User user2 = new User("Niels Rosen Abildgaard", "bieberrox");
+		User user3 = new User("Michael Søby Andersen", "bieberrox");
+		User user4 = new User("Claus L. Henriksen", "bieberrox");
+
+		Task task1 = new Task(1, "Do MDS Mandatory Exercise 1", "17-09-12", "nearly done", "Handin one", user1.getId());
+		Task task2 = new Task(2, "Do MDS Mandatory Exercise 1", "17-09-12", "nearly done", "Handin one", user2.getId());
+		Task task3 = new Task(3, "Do MDS Mandatory Exercise 1", "17-09-12", "nearly done", "Handin one", user3.getId());
+		Task task4 = new Task(4, "Do MDS Mandatory Exercise 1", "17-09-12", "nearly done", "Handin one", user4.getId());
+
+		cal.addUser(user1);
+	  cal.addUser(user2);
+	  cal.addUser(user3);
+	  cal.addUser(user4);
 		cal.addTask(task1);
 		cal.addTask(task2);
+		cal.addTask(task3);
+		cal.addTask(task4);
 		
 		//marshall
-		ObjectMarshaller.marshall(cal, "./bossen.xml");
+		ObjectMarshaller.marshall(cal, "./calendar.xml");
 		System.out.println("Marshall succesfull");
 		//unmarshall
 		Calendar cal2 = new Calendar();
