@@ -118,14 +118,31 @@ public class TaskManagerTCPClient {
       // int id, String name, String date, String status, String description, String attendant
       System.out.println("Please enter the name of the task");
       String name = getString();
+      if(name == null){
+        cancelRequest();
+        return;
+      }
       System.out.println("Please enter a date for the task");
       String date = getString();
+      if(date == null){
+        cancelRequest();
+        return;
+      }
       System.out.println("Please enter status of the task");
       String status = getString();
+      if(status == null){
+        cancelRequest();
+        return;
+      }
       System.out.println("Please enter any description of the task");
       String description = getString();
+      if(description == null){
+        cancelRequest();
+        return;
+      }
       System.out.println("Please enter userID of the task attendant");
       int attendant = getInt();
+      if(attendant < 0) return;
       // Create task
       // ID is redefined by server
       Task task = new Task(0, name, date, status, description, attendant);
@@ -134,7 +151,15 @@ public class TaskManagerTCPClient {
       System.out.println("Task saved");
     }
     // Return
-    run();
+  }
+  
+  private void cancelRequest(){
+    try {
+      dos.writeUTF("q");
+      dos.flush();
+    } catch (IOException e) {
+      Log.error(e.getMessage());
+    }
   }
 
   private void delete() {
@@ -144,13 +169,20 @@ public class TaskManagerTCPClient {
       // Get taskID from user
       System.out.println("Write taskID of the task you want to delete");
       int in = getInt();
+      if(in < 0){
+        cancelRequest();
+        return;
+      }
       // Are you sure?
       System.out.println("Are you sure you want to delete? Y/N");
       while (true) {
         String line = getString();
+        if(line == null){
+          cancelRequest();
+          return;
+        }
         if (line.equals("n")) {
-          run();
-          break;
+          return;
         } else if (line.equals("y")) {
           in = 0; // Don't delete anything
           break;
@@ -159,12 +191,12 @@ public class TaskManagerTCPClient {
       // Delete task
       try {
         dos.writeInt(in);
+        dos.flush();
       } catch (IOException e) {
         Log.error(e.getMessage());
       }
     }
     // Return
-    run();
   }
 
   private void put() {
@@ -173,6 +205,10 @@ public class TaskManagerTCPClient {
     if (check(request)) {
       // Get taskID from user
       int id = getInt();
+      if(id < 0){
+        cancelRequest();
+        return;
+      }
       // Get task
       Task task = null;
       try {
@@ -181,7 +217,7 @@ public class TaskManagerTCPClient {
         ArrayList<Task> tasks = cal.getTasks();
         if (tasks.isEmpty()) {
           System.out.println("No task by that ID");
-          run();
+          return;
         }
         task = tasks.get(0);
       } catch (JAXBException e) {
@@ -194,15 +230,17 @@ public class TaskManagerTCPClient {
         System.out
             .println("Which field do you want to change? Write 0 to save");
         int in = getInt();
-        if (in == 0)
-          break;
+        if(in < 0){
+          cancelRequest();
+          return;
+        }
+        if (in == 0) break;
       }
       // Send task to server
       ObjectMarshaller.marshall(task, dos);
       System.out.println("Task saved");
     }
     // Return
-    run();
   }
 
   private void get() {
@@ -210,11 +248,16 @@ public class TaskManagerTCPClient {
     // Check if server is ready for request
     if (check(request)) {
       // Get userID from user
-      System.out.println("Type userID");
+      System.out.println("Type userID. 0 will get you all tasks");
       int in = getInt();
+      if(in < 0){
+        cancelRequest();
+        return;
+      }
       // Write userID to server
       try {
         dos.writeUTF(""+in);
+        dos.flush();
       } catch (IOException e) {
         Log.error(e.getMessage());
       }
@@ -239,7 +282,6 @@ public class TaskManagerTCPClient {
       }
     }
     // Return
-    run();
   }
 
   /**
@@ -251,7 +293,7 @@ public class TaskManagerTCPClient {
     String input = keyboard.next().toLowerCase().trim();
     // Did user want to cancel?
     if (input.equals("q"))
-      run();
+      return null;
     return input;
   }
 
@@ -269,10 +311,8 @@ public class TaskManagerTCPClient {
         break;
       } catch (NumberFormatException e) {
         // Did the user want to cancel?
-        if (in.equals("q"))
-          run();
-        System.out
-            .println("Invalid userID. Please type a number or type Q to canel");
+        if (in.equals("q")) return -1;
+        System.out.println("Invalid userID. Please type a number or type Q to canel");
       }
     return input;
   }
@@ -319,7 +359,7 @@ public class TaskManagerTCPClient {
    */
   public static void main(String[] args) {
     int serverPort = 7896;
-    InetAddress ip = null; // TODO something
+    InetAddress ip = null; 
     try {
       ip = InetAddress.getByName("localhost");
     } catch (UnknownHostException e) {

@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder={"id", "attendantid", "name", "date", "status", "description"})
 public class Task {
 
-  private int id, attendantid;
+	private int id, attendantid;
 	private String name, date, status, description;
 	
 	public Task() {}
@@ -85,5 +85,24 @@ public class Task {
 	  print += "Task description: " + description + "\n";
 	  print += "Task attendant: " + attendantid;
 	  return print;
+	}
+	
+	/**
+	 * This implementation assumes that all users are unique by their id.
+	 */
+	public int hashCode() {
+		return 37 * id;
+	}
+	
+	/**
+	 * This implementation assumes that all users are unique by their id.
+	 */
+	public boolean equals(Object o) {
+		if(this == o) return true;
+		if(o instanceof Task) {
+			Task t = (Task)o;
+			if(t.getId() == getId()) return true;
+		}
+		return false;
 	}
 }

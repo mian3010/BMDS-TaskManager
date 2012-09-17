@@ -20,6 +20,6 @@ public class RequestParserDELETE extends RequestParser {
     TaskManagerTCPServer.log(source, request);
     int id = Integer.parseInt(request);
     if(id == 0) return;
-//    TaskManagerTCPServer.INSTANCE.getCalendar().removeTask(id);
+    TaskManagerTCPServer.INSTANCE.getCalendar().removeTask(id);
   }
 }
