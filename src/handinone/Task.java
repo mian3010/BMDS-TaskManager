@@ -5,24 +5,25 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "task")
-@XmlType(propOrder={"id", "name", "date", "status", "description", "attendant"})
+@XmlType(propOrder={"id", "attendantid", "name", "date", "status", "description"})
 public class Task {
 
-	private String id, name, date, status, description, attendant;
+  private int id, attendantid;
+	private String name, date, status, description;
 	
 	public Task() {}
 	
-	public Task(String id, String name, String date, String status, String description, String attendant) {
+	public Task(int id, String name, String date, String status, String description,int attendantid) {
 		this.id = id;
 		this.name = name;
 		this.date = date;
 		this.status = status;
 		this.description = description;
-		this.attendant = attendant;
+		this.attendantid = attendantid;
 	}
 	
 	@XmlAttribute
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 	
@@ -45,11 +46,12 @@ public class Task {
 		return description;
 	}
 	
-	public String getAttendant() {
-		return attendant;
+	@XmlAttribute
+	public int getAttendantid() {
+		return attendantid;
 	}
 	
-	public void setId(String id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 	
@@ -69,7 +71,19 @@ public class Task {
 		this.description = description;
 	}
 	
-	public void setAttendant(String attendant) {
-		this.attendant = attendant;
+	public void setAttendantid(int attendantid) {
+		this.attendantid = attendantid;
+	}
+	
+	@Override
+	public String toString(){
+	  String print = "";
+	  print += "Task ID: " + id + "\n";
+	  print += "Task name: " + name + "\n";
+	  print += "Task date: " + date + "\n";
+	  print += "Task status: " + status + "\n";
+	  print += "Task description: " + description + "\n";
+	  print += "Task attendant: " + attendantid;
+	  return print;
 	}
 }

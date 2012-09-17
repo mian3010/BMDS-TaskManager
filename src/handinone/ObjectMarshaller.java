@@ -11,7 +11,7 @@ import javax.xml.bind.Unmarshaller;
  * Note the poor use of exception handling and error checking, as well as the code duplication.
  * This is intentional as it's not an open system, but just a JAXB exercise. This class was ment for testing.
  */
-public class CalendarMarshaller {
+public class ObjectMarshaller {
 	
 	public static Marshaller getMarshaller(Object obj) {
 		try {

@@ -1,9 +1,14 @@
 package handinone;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -14,79 +19,120 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder={"users", "tasks"})
 public class Calendar {
 	
-	private ArrayList<User> users;
-	private ArrayList<Task> tasks;
+  private static HashMap<Integer, User> users = new HashMap<>();
+  private static HashMap<Integer, ArrayList<Task>> tasks = new HashMap<>();
 	
-	public Calendar() {
-		users = new ArrayList<User>();
-		tasks = new ArrayList<Task>();
+	public Calendar() {}
+	
+	public Calendar(ArrayList<User> userlist, ArrayList<Task> tasklist) {
+	  for (User user : userlist) {
+	    this.addUser(user);
+	  }
+		for (Task task : tasklist) {
+		  if (!tasks.containsKey(task.getAttendantid())) throw new IllegalArgumentException("Orphaned task found");
+		  tasks.get(task.getAttendantid()).add(task);
+		}
 	}
 	
-	public Calendar(ArrayList<User> users, ArrayList<Task> tasks) {
-		this.users = users;
-		this.tasks = tasks;
+	public static User getUser(int id) {
+	  return users.get(id);
 	}
 	
 	public void addUser(User user) {
-		users.add(user);
+		users.put(user.getId(), user);
+		tasks.put(user.getId(), new ArrayList<Task>());
 	}
 	
-	public void removeUser(User user) {
-		users.remove(user);
+	public void removeUser(String userid) {
+		users.remove(userid);
 	}
 	
 	@XmlElementWrapper(name = "users")
 	@XmlElement(name = "user")
 	public ArrayList<User> getUsers() {
-		return users;
+	  ArrayList<User> usersReturn = new ArrayList<>();
+	  for (Map.Entry<Integer, User> user : users.entrySet()) {
+	    usersReturn.add(user.getValue());
+	  }
+		return usersReturn;
 	}
 
-	public void setUsers(ArrayList<User> users) {
-		this.users = users;
+	public void setUsers(ArrayList<User> userlist) {
+	  users.clear();
+	  tasks.clear();
+		for (User user : userlist) {
+		  this.addUser(user);
+		}
 	}
 
 	public void addTask(Task task) {
-		tasks.add(task);
+		tasks.get(task.getAttendantid()).add(task);
 	}
 	
 	public void removeTask(Task task) {
-		tasks.remove(task);
+		tasks.get(task.getAttendantid()).remove(task);
 	}
 	
 	@XmlElementWrapper(name = "tasks")
 	@XmlElement(name = "task")
 	public ArrayList<Task> getTasks() {
-		return tasks;
+	  ArrayList<Task> tasksReturn = new ArrayList<>();
+	  for (Map.Entry<Integer, ArrayList<Task>> taskslist : tasks.entrySet()) {
+	    tasksReturn.addAll(taskslist.getValue());
+	  }
+		return tasksReturn;
 	}
 
 
-	public void setTasks(ArrayList<Task> tasks) {
-		this.tasks = tasks;
+	public void setTasks(ArrayList<Task> tasklist) {
+		for (Task task : tasklist) {
+		  if (tasks.containsKey(task.getAttendantid())) tasks.get(task.getAttendantid()).add(task);
+		  else throw new IllegalArgumentException("No such user");
+		}
 	}
+	
+  public static void generateEmptyCalendar(File calendarfile) throws IOException {
+    calendarfile.createNewFile();
+    Calendar c = new Calendar();
+    ObjectMarshaller.marshall(c, new FileOutputStream(calendarfile));
+  }
+  
+  public static Calendar loadCalendar(File calendarfile) throws JAXBException, IOException {
+    if (!calendarfile.exists()) Calendar.generateEmptyCalendar(calendarfile);
+     return (Calendar) ObjectMarshaller.getUnmarshaller(new Calendar()).unmarshal(calendarfile);
+  }
+  
+  public static void saveCalendar(Calendar calendar, File calendarfile) throws FileNotFoundException {
+    ObjectMarshaller.marshall(calendar, new FileOutputStream(calendarfile));
+  }
 
 	public static void main (String[] args) {
 		Calendar cal = new Calendar();
-		cal.addTask(new Task("42", "Cool Task", "12-12-12", "not done", "This is a cool task", "gunit"));
-		cal.addTask(new Task("2", "OP: dbag", "04-11-91", "completed", "noob around", "sidi"));
 		
-		User user = new User();
-		user.setName("Ole Andersen");
-		cal.addUser(new User("Ole Andersen", "pw123"));
-		cal.addUser(new User("Lise Jensen", "bieberrox"));
+		User user1 = new User("Ole Andersen", "pw123");
+		User user2 = new User("Lise Jensen", "bieberrox");
+		Task task1 = new Task(42, "Cool Task", "12-12-12", "not done", "This is a cool task", user1.getId());
+		Task task2 = new Task(2, "OP: dbag", "04-11-91", "completed", "noob around", user2.getId());
+		
+	    cal.addUser(user1);
+	    cal.addUser(user2);
+		cal.addTask(task1);
+		cal.addTask(task2);
 		
 		//marshall
-		CalendarMarshaller.marshall(cal, "./bossen.xml");
+		ObjectMarshaller.marshall(cal, "./bossen.xml");
 		System.out.println("Marshall succesfull");
 		//unmarshall
-		try {
-			Calendar cal2 = (Calendar) CalendarMarshaller.getUnmarshaller(cal).unmarshal(new File("./bossen.xml"));
-			String idCheck = cal2.getTasks().get(0).getId();
-			if (idCheck.equals("42")) { 
-				System.out.println("Unmarshall succesfull");
-			}
-		} catch (Exception ex) {
-			System.out.println("Unmarshall failed");
-		}
+		Calendar cal2 = new Calendar();
+	    try {
+	      cal2 = (Calendar) ObjectMarshaller.getUnmarshaller(cal2).unmarshal(new File("./bossen.xml"));
+	  		for (Task task : cal2.getTasks()) {
+	  		  System.out.println(task);
+	  		}
+	  		System.out.println("Unmarshall succesfull");
+	    } catch (JAXBException e) {
+	      e.printStackTrace();
+	    }
 	}
 	
 

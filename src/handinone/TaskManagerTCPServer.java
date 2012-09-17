@@ -1,6 +1,7 @@
 package handinone;
 
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -10,6 +11,8 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.xml.bind.JAXBException;
+
 /**
  * @author BieberFever
  * @author Claus
@@ -18,14 +21,25 @@ import java.util.HashMap;
 public enum TaskManagerTCPServer {
   INSTANCE;
   
-  HashMap<InetAddress, String> commands = new HashMap<InetAddress, String>();
+  private HashMap<InetAddress, RequestParser> commands = new HashMap<>();
+  private Calendar calendar = new Calendar();
+  private static File calendarfile = new File("calendar.xml");
 
   /**
    * @author BieberFever
    * @param args
    */
   public static void main(String[] args) {
-    TaskManagerTCPServer.INSTANCE.run(7896);
+    try {
+      TaskManagerTCPServer.INSTANCE.calendar = Calendar.loadCalendar(calendarfile);
+      TaskManagerTCPServer.INSTANCE.run(7896);
+    } catch (JAXBException|IOException e) {
+      System.out.println("Could not load or create calendar file");
+    }
+  }
+  
+  public Calendar getCalendar() {
+    return calendar;
   }
 
   public void run(int port) {
@@ -45,31 +59,23 @@ public enum TaskManagerTCPServer {
         Socket con = ss.accept();
         InetAddress client = ss.getInetAddress();
         if (commands.containsKey(client)) {
-          String className = RequestParser.getClassName(commands.get(client));
+          RequestParser p = commands.get(client);
+          // Start the request
+          p.start();
+        } else {
+          String request = RequestParser.getRequest(con);
           try {
-            @SuppressWarnings("unchecked")
-            Class<RequestParser> classDefinition = (Class<RequestParser>) Class.forName(className);
+            @SuppressWarnings({ "unchecked" })
+            Class<RequestParser> classDefinition = (Class<RequestParser>) Class.forName(RequestParser.getClassName(request));
             @SuppressWarnings("rawtypes")
             Class[] constructorArgumentTypes = new Class[] {Socket.class, InetAddress.class};
             Object[] constructorArguments = new Object[] {con, client};
             Constructor<RequestParser> constructor = classDefinition.getConstructor(constructorArgumentTypes);
             RequestParser p = constructor.newInstance(constructorArguments);
-            // Start the request
-            p.start();
-          } catch (InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException|SecurityException|NoSuchMethodException e) {
-            e.printStackTrace();
-          } catch (ClassNotFoundException e) {
-            RequestParser.returnError(con, client); //Should not happen EVER
-          }
-        } else {
-          String request = RequestParser.getRequest(con);
-          try {
-            @SuppressWarnings({ "unchecked", "unused" })
-            Class<RequestParser> classDefinition = (Class<RequestParser>) Class.forName(RequestParser.getClassName(request));
-            commands.put(client, request);
+            commands.put(client, p);
             DataOutputStream out = RequestParser.getOutputStream(con);
             RequestParser.writeUTF(out, request);
-          } catch (ClassNotFoundException e) {
+          } catch (ClassNotFoundException|NoSuchMethodException|SecurityException|InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException e) {
             RequestParser.returnError(con, client);
           }
         }
