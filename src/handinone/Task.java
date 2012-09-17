@@ -87,10 +87,16 @@ public class Task {
 	  return print;
 	}
 	
+	/**
+	 * This implementation assumes that all users are unique by their id.
+	 */
 	public int hashCode() {
 		return 37 * id;
 	}
 	
+	/**
+	 * This implementation assumes that all users are unique by their id.
+	 */
 	public boolean equals(Object o) {
 		if(this == o) return true;
 		if(o instanceof Task) {
