@@ -18,7 +18,7 @@ import java.util.HashMap;
 public enum TaskManagerTCPServer {
   INSTANCE;
   
-  HashMap<InetAddress, Class<RequestParser>> commands = new HashMap<>();
+  HashMap<InetAddress, RequestParser> commands = new HashMap<>();
 
   /**
    * @author BieberFever
@@ -45,27 +45,23 @@ public enum TaskManagerTCPServer {
         Socket con = ss.accept();
         InetAddress client = ss.getInetAddress();
         if (commands.containsKey(client)) {
-          try {
-            Class<RequestParser> classDefinition = commands.get(client);
-            @SuppressWarnings("rawtypes")
-            Class[] constructorArgumentTypes = new Class[] {Socket.class, InetAddress.class};
-            Object[] constructorArguments = new Object[] {con, client};
-            Constructor<RequestParser> constructor = classDefinition.getConstructor(constructorArgumentTypes);
-            RequestParser p = constructor.newInstance(constructorArguments);
-            // Start the request
-            p.start();
-          } catch (InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException|SecurityException|NoSuchMethodException e) {
-            e.printStackTrace();
-          }
+          RequestParser p = commands.get(client);
+          // Start the request
+          p.start();
         } else {
           String request = RequestParser.getRequest(con);
           try {
             @SuppressWarnings({ "unchecked" })
             Class<RequestParser> classDefinition = (Class<RequestParser>) Class.forName(RequestParser.getClassName(request));
-            commands.put(client, classDefinition);
+            @SuppressWarnings("rawtypes")
+            Class[] constructorArgumentTypes = new Class[] {Socket.class, InetAddress.class};
+            Object[] constructorArguments = new Object[] {con, client};
+            Constructor<RequestParser> constructor = classDefinition.getConstructor(constructorArgumentTypes);
+            RequestParser p = constructor.newInstance(constructorArguments);
+            commands.put(client, p);
             DataOutputStream out = RequestParser.getOutputStream(con);
             RequestParser.writeUTF(out, request);
-          } catch (ClassNotFoundException e) {
+          } catch (ClassNotFoundException|NoSuchMethodException|SecurityException|InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException e) {
             RequestParser.returnError(con, client);
           }
         }
