@@ -74,11 +74,11 @@ public class Calendar {
 		cal.addUser(new User("Lise Jensen", "bieberrox"));
 		
 		//marshall
-		CalendarMarshaller.marshall(cal, "./bossen.xml");
+		ObjectMarshaller.marshall(cal, "./bossen.xml");
 		System.out.println("Marshall succesfull");
 		//unmarshall
 		try {
-			Calendar cal2 = (Calendar) CalendarMarshaller.getUnmarshaller(cal).unmarshal(new File("./bossen.xml"));
+			Calendar cal2 = (Calendar) ObjectMarshaller.getUnmarshaller(cal).unmarshal(new File("./bossen.xml"));
 			String idCheck = cal2.getTasks().get(0).getId(); //Okay, maybe we should use an ordered list instead of a set :)
 			if (idCheck.equals("42")) { 
 				System.out.println("Unmarshall succesfull");

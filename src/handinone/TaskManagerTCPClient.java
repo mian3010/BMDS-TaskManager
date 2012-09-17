@@ -121,8 +121,26 @@ public class TaskManagerTCPClient {
   private void post() {
     String request = "POST";
     if (check(request)) {
-      // XML Shit
+      // int id, String name, String date, String status, String description, String attendant
+      System.out.println("Please enter the name of the task");
+      String name = getString();
+      System.out.println("Please enter a date for the task");
+      String date = getString();
+      System.out.println("Please enter status of the task");
+      String status = getString();
+      System.out.println("Please enter any description of the task");
+      String description = getString();
+      System.out.println("Please enter the attendant of the task");
+      String attendant = getString();
+      // Create task
+      // ID is redefined by server
+      Task task = new Task(0, name, date, status, description, attendant);
+      // Save task
+      ObjectMarshaller.marshall(task, dos);
+      System.out.println("Task saved");
     }
+    // Return
+    run();
   }
 
   private void delete() {
@@ -164,7 +182,7 @@ public class TaskManagerTCPClient {
       // Get task
       ArrayList<Task> tasks = null;
       try {
-        Calendar cal = (Calendar) CalendarMarshaller.getUnmarshaller(
+        Calendar cal = (Calendar) ObjectMarshaller.getUnmarshaller(
             new Calendar()).unmarshal(dis);
         tasks = cal.getTasks();
         if (tasks.isEmpty()) {
@@ -206,7 +224,7 @@ public class TaskManagerTCPClient {
       // Receive calendar with tasks
       ArrayList<Task> tasks = null;
       try {
-        Calendar cal = (Calendar) CalendarMarshaller.getUnmarshaller(
+        Calendar cal = (Calendar) ObjectMarshaller.getUnmarshaller(
             new Calendar()).unmarshal(dis);
         tasks = cal.getTasks();
       } catch (JAXBException e) {
