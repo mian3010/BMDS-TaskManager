@@ -121,63 +121,55 @@ public class TaskManagerTCPClient {
   private void post() {
     System.out.println("Do something");
     String request = "POST";
-    if(check(request)){
-      //XML Shit
+    if (check(request)) {
+      // XML Shit
     }
   }
 
   private void delete() {
     System.out.println("Do something");
     String request = "DELETE";
-    if(check(request)){
-      //XML Shit
+    if (check(request)) {
+      // XML Shit
     }
   }
 
   private void put() {
     System.out.println("Do something");
     String request = "PUT";
-    if(check(request)){
-      //XML Shit
+    if (check(request)) {
+      // XML Shit
     }
   }
 
   private void get() {
     String request = "GET";
     // Check if server is ready for request
-    if(check(request)){
+    if (check(request)) {
       // Get userID from user
       System.out.println("Type userID");
-      String in = keyboard.next().toLowerCase().trim();
-      int input;
-      while (true)
-        try{
-          input = Integer.parseInt(in);
-          break;
-        }catch (NumberFormatException e){
-          // Did the user want to cancel?
-          if(in.equals("q")) run();
-          System.out.println("Invalid userID. Please type a number or type Q to canel");
-        }
+      int in = getInt();
       // Write userID to server
       try {
-        dos.write(input);
+        dos.write(in);
       } catch (IOException e) {
         Log.error(e.getMessage());
       }
       // Receive calendar with tasks
       ArrayList<Task> tasks = null;
       try {
-        Calendar cal = (Calendar) CalendarMarshaller.getUnmarshaller(new Calendar()).unmarshal(dis);
+        Calendar cal = (Calendar) CalendarMarshaller.getUnmarshaller(
+            new Calendar()).unmarshal(dis);
         tasks = cal.getTasks();
       } catch (JAXBException e) {
         Log.error(e.getMessage());
       }
       // Print
-      if(tasks != null){
-        if(tasks.size() == 0) System.out.println("No tasks");
-        else{
-          for(Task task : tasks){
+      if (tasks != null) {
+        if (tasks.size() == 0)
+          System.out.println("No tasks");
+        else {
+          for (Task task : tasks) {
             System.out.println("\n" + task);
           }
         }
@@ -185,6 +177,40 @@ public class TaskManagerTCPClient {
     }
     // Return
     run();
+  }
+
+  /**
+   * Get string from user
+   * 
+   * @return string
+   */
+  private String getString() {
+    String input = keyboard.next().toLowerCase().trim();
+    // Did the user want to cancel?
+    if (input.equals("q"))  run();
+    return input;
+  }
+
+  /**
+   * Get interger from user
+   * 
+   * @return int
+   */
+  private int getInt() {
+    String in = keyboard.next().toLowerCase().trim();
+    int input = -1;
+    while (true)
+      try {
+        input = Integer.parseInt(in);
+        break;
+      } catch (NumberFormatException e) {
+        // Did the user want to cancel?
+        if (in.equals("q"))
+          run();
+        System.out
+            .println("Invalid userID. Please type a number or type Q to canel");
+      }
+    return input;
   }
 
   private void close() {
@@ -198,18 +224,19 @@ public class TaskManagerTCPClient {
     }
   }
 
-  private boolean check(String request){
+  private boolean check(String request) {
     String in = "";
     try {
       dos.writeUTF(request);
       dos.flush();
-    
+
       in = dis.readUTF();
     } catch (IOException e) {
       Log.error(e.getMessage());
       return false;
     }
-    if(in.equals(request)) return true;
+    if (in.equals(request))
+      return true;
     else {
       Log.error(in);
       return false;
