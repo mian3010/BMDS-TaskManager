@@ -2,14 +2,12 @@ package handinone;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -158,7 +156,7 @@ public class TaskManagerTCPClient {
           break;
         }
       }
-      // Detele task
+      // Delete task
       try {
         dos.writeInt(in);
       } catch (IOException e) {
