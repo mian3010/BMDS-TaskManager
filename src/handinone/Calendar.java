@@ -20,7 +20,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder={"users", "tasks"})
 public class Calendar {
   private static HashMap<Integer, User> users = new HashMap<>();
-  private static HashMap<Integer, HashSet<Task>> tasks = new HashMap<>();
+  private static HashMap<Integer, HashMap<Integer, Task>> tasks = new HashMap<>();
 	
 	public Calendar() {}
 	
@@ -30,7 +30,7 @@ public class Calendar {
 	  }
 		for (Task task : tasklist) {
 		  if (!tasks.containsKey(task.getAttendantid())) throw new IllegalArgumentException("Orphaned task found");
-		  tasks.get(task.getAttendantid()).add(task);
+		  tasks.get(task.getAttendantid()).put(task.getId(), task);
 		}
 	}
 	
@@ -40,7 +40,16 @@ public class Calendar {
 	
 	public void addUser(User user) {
 		users.put(user.getId(), user);
-		tasks.put(user.getId(), new HashSet<Task>());
+		tasks.put(user.getId(), new HashMap<Integer, Task>());
+	}
+	
+	public void removeTask(int id){
+	  for(HashMap<Integer, Task> tsks : tasks.values()){
+	    if(tsks.containsKey(id)){
+	      tsks.remove(id);
+	      return;
+	    }
+	  }
 	}
 	
 	public void removeUser(String userid) {
@@ -66,7 +75,7 @@ public class Calendar {
 	}
 
 	public void addTask(Task task) {
-		tasks.get(task.getAttendantid()).add(task);
+		tasks.get(task.getAttendantid()).put(task.getId(), task);
 	}
 	
 	public void removeTask(Task task) {
@@ -77,8 +86,8 @@ public class Calendar {
 	@XmlElement(name = "task")
 	public ArrayList<Task> getTasks() {
 	  ArrayList<Task> tasksReturn = new ArrayList<>();
-	  for (Map.Entry<Integer, HashSet<Task>> taskslist : tasks.entrySet()) {
-	    tasksReturn.addAll(taskslist.getValue());
+	  for (Map.Entry<Integer, HashMap<Integer, Task>> taskslist : tasks.entrySet()) {
+	    tasksReturn.addAll(taskslist.getValue().values());
 	  }
 		return tasksReturn;
 	}
@@ -86,13 +95,15 @@ public class Calendar {
 
 	public void setTasks(HashSet<Task> tasklist) {
 		for (Task task : tasklist) {
-		  if (tasks.containsKey(task.getAttendantid())) tasks.get(task.getAttendantid()).add(task);
+		  if (tasks.containsKey(task.getAttendantid())) tasks.get(task.getAttendantid()).put(task.getId(), task);
 		  else throw new IllegalArgumentException("No such user");
 		}
 	}
 	
-	public HashSet<Task> getListOfTasks(int userid) {
-	  return tasks.get(userid);
+	public ArrayList<Task> getListOfTasks(int userid) {
+	  ArrayList<Task> tasksReturn = new ArrayList<Task>();
+	  tasksReturn.addAll(tasks.get(userid).values());
+	  return tasksReturn;
 	}
 	
   public static void generateEmptyCalendar(File calendarfile) throws IOException {
