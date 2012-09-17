@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder={"id", "attendantid", "name", "date", "status", "description"})
 public class Task {
 
-  private int id, attendantid;
+	private int id, attendantid;
 	private String name, date, status, description;
 	
 	public Task() {}
