@@ -19,7 +19,7 @@ public class RequestParserDELETE extends RequestParser {
   public void parseRequest(String request) throws IOException {
     TaskManagerTCPServer.log(source, request);
     int id = Integer.parseInt(request);
-    if(id == 0) return;
+    if(id == 0) return; // Illegal ID. Client didn't want to delete
     TaskManagerTCPServer.INSTANCE.getCalendar().removeTask(id);
   }
 }

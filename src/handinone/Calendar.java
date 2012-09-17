@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
@@ -34,7 +33,7 @@ public class Calendar {
 		}
 	}
 	
-	public static User getUser(int id) {
+	public User getUser(int id) {
 	  return users.get(id);
 	}
 	
@@ -93,7 +92,7 @@ public class Calendar {
 	}
 
 
-	public void setTasks(HashSet<Task> tasklist) {
+	public void setTasks(ArrayList<Task> tasklist) {
 		for (Task task : tasklist) {
 		  if (tasks.containsKey(task.getAttendantid())) tasks.get(task.getAttendantid()).put(task.getId(), task);
 		  else throw new IllegalArgumentException("No such user");
@@ -114,7 +113,7 @@ public class Calendar {
   
   public static Calendar loadCalendar(File calendarfile) throws JAXBException, IOException {
     if (!calendarfile.exists()) Calendar.generateEmptyCalendar(calendarfile);
-     return (Calendar) ObjectMarshaller.getUnmarshaller(new Calendar()).unmarshal(calendarfile);
+     return (Calendar) ObjectMarshaller.getUnmarshaller(Calendar.class).unmarshal(calendarfile);
   }
   
   public static void saveCalendar(Calendar calendar, File calendarfile) throws FileNotFoundException {
@@ -140,7 +139,7 @@ public class Calendar {
 		//unmarshall
 		Calendar cal2 = new Calendar();
 	    try {
-	      cal2 = (Calendar) ObjectMarshaller.getUnmarshaller(cal2).unmarshal(new File("./bossen.xml"));
+	      cal2 = (Calendar) ObjectMarshaller.getUnmarshaller(Calendar.class).unmarshal(new File("./bossen.xml"));
 	  		for (Task task : cal2.getTasks()) {
 	  		  System.out.println(task);
 	  		}
