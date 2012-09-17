@@ -48,7 +48,17 @@ public abstract class RequestParser extends Thread {
     return "handinone.RequestParser"+command.toUpperCase();
   }
 
-  public abstract void run();
+  public void run() {
+    if (request != null) {
+      try {
+        parseRequest(request);
+        out.flush();
+        con.close();
+      } catch (IOException e) {
+        System.err.println(e);
+      }
+    }
+  }
 
   public abstract void parseRequest(String request) throws IOException;
 }

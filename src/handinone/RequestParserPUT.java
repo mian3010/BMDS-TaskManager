@@ -15,18 +15,6 @@ public class RequestParserPUT extends RequestParser {
     super(con, source);
   }
 
-  public void run() {
-    if (request != null) {
-      try {
-        parseRequest(request);
-        out.flush();
-        con.close();
-      } catch (IOException e) {
-        System.err.println(e);
-      }
-    }
-  }
-
   public void parseRequest(String request) throws IOException {
     TaskManagerTCPServer.log(source, request);
     out.writeUTF(request);

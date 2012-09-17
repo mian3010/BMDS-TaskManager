@@ -91,6 +91,10 @@ public class Calendar {
 		}
 	}
 	
+	public ArrayList<Task> getListOfTasks(int userid) {
+	  return tasks.get(userid);
+	}
+	
   public static void generateEmptyCalendar(File calendarfile) throws IOException {
     calendarfile.createNewFile();
     Calendar c = new Calendar();
@@ -114,8 +118,8 @@ public class Calendar {
 		Task task1 = new Task(42, "Cool Task", "12-12-12", "not done", "This is a cool task", user1.getId());
 		Task task2 = new Task(2, "OP: dbag", "04-11-91", "completed", "noob around", user2.getId());
 		
-    cal.addUser(user1);
-    cal.addUser(user2);
+	    cal.addUser(user1);
+	    cal.addUser(user2);
 		cal.addTask(task1);
 		cal.addTask(task2);
 		
@@ -124,15 +128,15 @@ public class Calendar {
 		System.out.println("Marshall succesfull");
 		//unmarshall
 		Calendar cal2 = new Calendar();
-    try {
-      cal2 = (Calendar) ObjectMarshaller.getUnmarshaller(cal2).unmarshal(new File("./bossen.xml"));
-  		for (Task task : cal2.getTasks()) {
-  		  System.out.println(task);
-  		}
-  		System.out.println("Unmarshall succesfull");
-    } catch (JAXBException e) {
-      e.printStackTrace();
-    }
+	    try {
+	      cal2 = (Calendar) ObjectMarshaller.getUnmarshaller(cal2).unmarshal(new File("./bossen.xml"));
+	  		for (Task task : cal2.getTasks()) {
+	  		  System.out.println(task);
+	  		}
+	  		System.out.println("Unmarshall succesfull");
+	    } catch (JAXBException e) {
+	      e.printStackTrace();
+	    }
 	}
 	
 

@@ -3,6 +3,7 @@ package handinone;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Returns a list of tasks for the given user
@@ -16,20 +17,10 @@ public class RequestParserGET extends RequestParser {
     super(con, source);
   }
 
-  public void run() {
-    if (request != null) {
-      try {
-        parseRequest(request);
-        out.flush();
-        con.close();
-      } catch (IOException e) {
-        System.err.println(e);
-      }
-    }
-  }
-
   public void parseRequest(String request) throws IOException {
     TaskManagerTCPServer.log(source, request);
-    Calendar cal = TaskManagerTCPServer.INSTANCE.getCalendar();
+    Calendar cal = TaskManagerTCPServer.INSTANCE.getCalendar(); 
+    ArrayList<Task> taskList = cal.getListOfTasks(Integer.parseInt(request));
+    ObjectMarshaller.marshall(taskList, out);
   }
 }
