@@ -86,4 +86,17 @@ public class Task {
 	  print += "Task attendant: " + attendantid;
 	  return print;
 	}
+	
+	public int hashCode() {
+		return 37 * id;
+	}
+	
+	public boolean equals(Object o) {
+		if(this == o) return true;
+		if(o instanceof Task) {
+			Task t = (Task)o;
+			if(t.getId() == getId()) return true;
+		}
+		return false;
+	}
 }
