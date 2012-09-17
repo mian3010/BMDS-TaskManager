@@ -57,6 +57,17 @@ public class TaskManagerTCPClient {
       System.out.println("error message: " + ex.getMessage());
     }
   }
+  
+  private void writeToServer(String str) {
+    openConnection();
+    try {
+      dos.writeUTF(str);
+      dos.flush();
+      socket.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
   private void run() {
     System.out.println("Connection created");
@@ -68,7 +79,6 @@ public class TaskManagerTCPClient {
 
     String in;
     while (true) {
-      openConnection();
       in = null; // reset
 
       // If user has input
@@ -108,7 +118,6 @@ public class TaskManagerTCPClient {
       } catch (IOException e) {
         Log.error(e.getMessage());
       }
-      closeConnection();
     }
   }
 
@@ -349,17 +358,6 @@ public class TaskManagerTCPClient {
     return input;
   }
 
-  private void closeConnection() {
-    // close the socket
-    if (!socket.isClosed()) {
-      try {
-        socket.close();
-      } catch (IOException e) {
-        System.out.println("error message: " + e.getMessage());
-      }
-    }
-  }
-
   private boolean check(String request) {
     String in = "";
     try {
@@ -382,7 +380,6 @@ public class TaskManagerTCPClient {
   private void stop() {
     System.out.println("Program will now exit");
     // close the socket
-    closeConnection();
     System.exit(0);
   }
 
