@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
@@ -34,7 +33,7 @@ public class Calendar {
 		}
 	}
 	
-	public static User getUser(int id) {
+	public User getUser(int id) {
 	  return users.get(id);
 	}
 	
@@ -93,7 +92,7 @@ public class Calendar {
 	}
 
 
-	public void setTasks(HashSet<Task> tasklist) {
+	public void setTasks(ArrayList<Task> tasklist) {
 		for (Task task : tasklist) {
 		  if (tasks.containsKey(task.getAttendantid())) tasks.get(task.getAttendantid()).put(task.getId(), task);
 		  else throw new IllegalArgumentException("No such user");

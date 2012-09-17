@@ -20,6 +20,7 @@ public abstract class RequestParser extends Thread {
 
     request = getRequest(con);
     out = getOutputStream(con);
+    if (request.equals("q")) throw new IllegalArgumentException("Quit detected");
   }
 
   public static DataOutputStream getOutputStream(Socket con) throws IOException {
