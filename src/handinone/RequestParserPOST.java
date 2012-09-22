@@ -23,7 +23,6 @@ public class RequestParserPOST extends RequestParser {
       Task task = (Task) ObjectMarshaller.getUnmarshaller(Task.class).unmarshal(is);
       task.setRightId();
       TaskManagerTCPServer.INSTANCE.getCalendar().addTask(task);
-      TaskManagerTCPServer.INSTANCE.getCalendar().marshallCalendar(TaskManagerTCPServer.calendarfile);
       TaskManagerTCPServer.log(source, "POST: Added task with id "+task.getId()+" for user "+task.getAttendantid());
     } catch (JAXBException|NullPointerException e) {
       TaskManagerTCPServer.log(source, "POST: Error adding. Maybe attendantid is wrong?");
