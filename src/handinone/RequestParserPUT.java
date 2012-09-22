@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import javax.xml.bind.JAXBException;
+
 /**
  * Update a task in the task list
  * 
@@ -16,18 +18,13 @@ public class RequestParserPUT extends RequestParser {
   }
 
   public void parseRequest(String request) throws IOException {
-    int id = Integer.parseInt(request);
-    Calendar cal = TaskManagerTCPServer.INSTANCE.getCalendar();
-    Task task = cal.getTask(id);
-    if (task != null) {
-      ObjectMarshaller.marshall(task, out);
-      TaskManagerTCPServer.log(source, "PUT: Returned task with id "+id);
-    } else {
-      TaskManagerTCPServer.log(source, "PUT: No task with id "+id+" exists");
-      out.writeUTF("Error: No such task");
+    try {
+      Task updatedTask = (Task) ObjectMarshaller.getUnmarshaller(Task.class).unmarshal(is);
+      TaskManagerTCPServer.INSTANCE.getCalendar().updateTask(updatedTask);
+      TaskManagerTCPServer.log(source, "PUT: Updated task with id "+updatedTask.getId());
+    } catch (JAXBException e) {
+      TaskManagerTCPServer.log(source, "PUT: Task could not be updated");
     }
-    out.flush();
-    request = dis.readUTF();
     
   }
 }

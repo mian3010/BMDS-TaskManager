@@ -109,6 +109,10 @@ public class Calendar {
 		}
 	}
 	
+	public void updateTask(Task update) {
+	  tasks.get(update.getAttendantid()).put(update.getId(), update);
+	}
+	
 	public ArrayList<Task> getListOfTasks(int userid) throws NullPointerException {
 	  ArrayList<Task> tasksReturn = new ArrayList<Task>();
 	  tasksReturn.addAll(tasks.get(userid).values());

@@ -199,10 +199,11 @@ public class TaskManagerTCPClient {
 
   private void put() {
     boolean ready = initialize();
-    String request = "put";
+    String request = "get";
     // Check if server is ready for request
     if (ready && check(request)) {
       // Get taskID from user
+      System.out.println("Write the id of the task you wish to change");
       int id = getInt();
       if(id < 0){
         cancelRequest();
@@ -210,7 +211,7 @@ public class TaskManagerTCPClient {
       }
       // Specify task
       try {
-        dos.writeUTF(""+id);
+        dos.writeUTF("task:"+id);
         dos.flush();
       } catch (IOException e1) {
         e1.printStackTrace();
@@ -222,54 +223,63 @@ public class TaskManagerTCPClient {
       } catch (JAXBException e) {
         Log.error(e.getMessage());
       }
-      // List task as is
-      System.out.println(task);
-      // Which field does user want to edit?
-      boolean loop = true;
-      while (loop) {
-        System.out.println("Which field do you want to change? Write 0 to save");
-        int in = getInt();
-        if(in < 0){
-          cancelRequest();
-          return;
+      close();
+      boolean ready2 = initialize();
+      request = "put";
+      if (ready2 && check(request)) {
+        // Which field does user want to edit?
+        boolean loop = true;
+        while (loop) {
+          System.out.println(task);
+          System.out.println("Which field do you want to change? Write 0 to save");
+          int in = getInt();
+          if(in < 0){
+            cancelRequest();
+            return;
+          }
+          switch (in) {
+          case 0:
+            loop = false;
+            break;
+          case 1:
+            System.out.println("New Task ID");
+            task.setId(getInt());
+            break;
+          case 2:
+            System.out.println("New Task name:");
+            task.setName(getString());
+            break;
+          case 3:
+            System.out.println("New Task date:");
+            task.setDate(getString());
+            break;
+          case 4:
+            System.out.println("New Task status:");
+            task.setStatus(getString());
+            break;
+          case 5:
+            System.out.println("New Task description:");
+            task.setDescription(getString());
+            break;
+          case 6:
+            System.out.println("New Task attendant:");
+            task.setAttendantid(getInt());
+            break;
+          }
         }
-        switch (in) {
-        case 0:
-          loop = false;
-          break;
-        case 1:
-          task.setId(getInt());
-          break;
-        case 2:
-          task.setName(getString());
-          break;
-        case 3:
-          task.setDate(getString());
-          break;
-        case 4:
-          task.setStatus(getString());
-          break;
-        case 5:
-          task.setDescription(getString());
-          break;
-        case 6:
-          task.setAttendantid(getInt());
-          break;
+        // Send task to server
+        try {
+          dos.writeUTF("start");
+          dos.flush();
+          ObjectMarshaller.marshall(task, dos);
+          dos.flush();
+          System.out.println("Task sent to server");
+        } catch (IOException e) {
+          System.out.println("Error putting task");
         }
       }
-      // Send task to server
-      try {
-        dos.writeUTF("start");
-        dos.flush();
-        ObjectMarshaller.marshall(task, dos);
-        dos.flush();
-        System.out.println("Task sent to server");
-      } catch (IOException e) {
-        System.out.println("Error putting task");
-      }
-      System.out.println("Task saved");
     }
-    // Return
+    close();
   }
 
   private void get() {
@@ -278,35 +288,43 @@ public class TaskManagerTCPClient {
     // Check if server is ready for request
     if (ready && check(request)) {
       // Get userID from user
-      System.out.println("Type userID. 0 will get you all tasks");
-      int in = getInt();
-      if(in < 0){
-        cancelRequest();
-        return;
-      }
+      System.out.println("Type user:id to get tasks for user");
+      System.out.println("  or task:id to get specific task");
+      System.out.println("  or user:0  to get all tasks");
+      String in = getString();
+      String[] req = in.split(":");
       // Write userID to server
       try {
-        dos.writeUTF(""+in);
+        dos.writeUTF(in);
         dos.flush();
       } catch (IOException e) {
         Log.error(e.getMessage());
       }
-      // Receive calendar with tasks
-      ArrayList<Task> tasks = null;
-      try {
-        Calendar cal = (Calendar) ObjectMarshaller.getUnmarshaller(Calendar.class).unmarshal(is);
-        tasks = cal.getTasks();
-      } catch (JAXBException e) {
-        Log.error(e.getMessage());
-      }
-      // Print
-      if (tasks != null) {
-        if (tasks.size() == 0)
-          System.out.println("No tasks");
-        else {
-          for (Task task : tasks) {
-            System.out.println("\n" + task);
+      if (req[0].equals("user")) {
+        // Receive calendar with tasks
+        ArrayList<Task> tasks = null;
+        try {
+          Calendar cal = (Calendar) ObjectMarshaller.getUnmarshaller(Calendar.class).unmarshal(is);
+          tasks = cal.getTasks();
+        } catch (JAXBException e) {
+          Log.error(e.getMessage());
+        }
+        // Print
+        if (tasks != null) {
+          if (tasks.size() == 0)
+            System.out.println("No tasks");
+          else {
+            for (Task task : tasks) {
+              System.out.println("\n" + task);
+            }
           }
+        }
+      } else if (req[0].equals("task")) {
+        try {
+          Task task = (Task) ObjectMarshaller.getUnmarshaller(Task.class).unmarshal(is);
+          System.out.println(task);
+        } catch (JAXBException e) {
+          Log.error(e.getMessage());
         }
       }
     }

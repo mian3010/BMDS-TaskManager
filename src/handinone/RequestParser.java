@@ -57,6 +57,7 @@ public abstract class RequestParser extends Thread {
     } catch (IOException e) {
       System.err.println(e);
     }
+    TaskManagerTCPServer.INSTANCE.getCalendar().marshallCalendar(TaskManagerTCPServer.calendarfile);
   }
 
   public abstract void parseRequest(String request) throws IOException;
