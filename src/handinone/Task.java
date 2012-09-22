@@ -10,11 +10,13 @@ public class Task {
 
 	private int id, attendantid;
 	private String name, date, status, description;
+	private static int highestId = 0;
 	
 	/**
 	 * Creates an object in an unstable state, but is used by XML Reflection generation.
 	 */
-	private Task() {}
+	@SuppressWarnings("unused")
+  private Task() {}
 	
 	public Task(int id, String name, String date, String status, String description,int attendantid) {
 		this.id = id;
@@ -23,7 +25,17 @@ public class Task {
 		this.status = status;
 		this.description = description;
 		this.attendantid = attendantid;
+		if (highestId < id) highestId = id;
 	}
+	
+	public Task(String name, String date, String status, String description,int attendantid) {
+	  this.id = ++highestId;
+    this.name = name;
+    this.date = date;
+    this.status = status;
+    this.description = description;
+    this.attendantid = attendantid;
+  }
 	
 	@XmlAttribute
 	public int getId() {
@@ -56,6 +68,7 @@ public class Task {
 	
 	public void setId(int id) {
 		this.id = id;
+		if (highestId < id) highestId = id;
 	}
 	
 	public void setName(String name) {
@@ -107,5 +120,9 @@ public class Task {
 			if(t.getId() == getId()) return true;
 		}
 		return false;
+	}
+	
+	public void setRightId() {
+	  this.id = ++highestId;
 	}
 }

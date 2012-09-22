@@ -1,5 +1,6 @@
 package handinone;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.OutputStream;
 
@@ -36,15 +37,20 @@ public class ObjectMarshaller {
 	}
 	
 	public static void marshall(Object obj, String filePath) {
-		Marshaller marshaller = getMarshaller(obj);
-		try {
-			FileWriter fw = new FileWriter(filePath);
-			marshaller.marshal(obj, fw);
-			fw.close();
-		} catch (Exception e) {
-			System.out.println("Exception: " + e.getMessage());
-		}
+		File file = new File(filePath);
+		marshall(obj, file);
 	}
+	
+	public static void marshall(Object obj, File file) {
+    Marshaller marshaller = getMarshaller(obj);
+    try {
+      FileWriter fw = new FileWriter(file);
+      marshaller.marshal(obj, fw);
+      fw.close();
+    } catch (Exception e) {
+      System.out.println("Exception: " + e.getMessage());
+    }
+  }
 	
 	@SuppressWarnings("rawtypes")
   public static Unmarshaller getUnmarshaller(Class objClass) {

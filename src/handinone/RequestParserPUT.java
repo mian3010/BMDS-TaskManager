@@ -16,7 +16,18 @@ public class RequestParserPUT extends RequestParser {
   }
 
   public void parseRequest(String request) throws IOException {
-    TaskManagerTCPServer.log(source, request);
-    out.writeUTF(request);
+    int id = Integer.parseInt(request);
+    Calendar cal = TaskManagerTCPServer.INSTANCE.getCalendar();
+    Task task = cal.getTask(id);
+    if (task != null) {
+      ObjectMarshaller.marshall(task, out);
+      TaskManagerTCPServer.log(source, "PUT: Returned task with id "+id);
+    } else {
+      TaskManagerTCPServer.log(source, "PUT: No task with id "+id+" exists");
+      out.writeUTF("Error: No such task");
+    }
+    out.flush();
+    request = dis.readUTF();
+    
   }
 }

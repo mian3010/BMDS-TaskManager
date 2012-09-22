@@ -3,6 +3,7 @@ package handinone;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -13,12 +14,14 @@ public abstract class RequestParser extends Thread {
   protected Socket con;
   protected DataOutputStream out;
   protected DataInputStream dis;
+  protected InputStream is;
 
   public RequestParser(Socket con, InetAddress source) throws IOException {
     this.con = con;
     this.source = source;
     out = getOutputStream(con);
-    dis = new DataInputStream(con.getInputStream());
+    is = con.getInputStream();
+    dis = new DataInputStream(is);
   }
 
   public static DataOutputStream getOutputStream(Socket con) throws IOException {
@@ -29,8 +32,7 @@ public abstract class RequestParser extends Thread {
     return dis.readUTF();
   }
 
-  public static void writeUTF(DataOutputStream out, String message)
-      throws IOException {
+  public static void writeUTF(DataOutputStream out, String message) throws IOException {
     out.writeUTF(message);
     out.flush();
   }
@@ -44,18 +46,16 @@ public abstract class RequestParser extends Thread {
   }
 
   public void run() {
-    while (true) {
-      try {
-        TaskManagerTCPServer.log(source, request);
-        request = getRequest(con);
-        if (request.equals("q")) throw new IllegalArgumentException("Quit detected");
-        if (request != null) {
-          parseRequest(request);
-          out.flush();
-        }
-      } catch (IOException e) {
-        System.err.println(e);
+    try {
+      request = getRequest(con);
+      if (request.equals("q")) throw new IllegalArgumentException("Not understood, must be quit signal");
+      if (request != null) {
+        parseRequest(request);
+        out.flush();
+        out.close();
       }
+    } catch (IOException e) {
+      System.err.println(e);
     }
   }
 

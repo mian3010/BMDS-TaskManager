@@ -1,6 +1,5 @@
 package handinone;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -34,10 +33,10 @@ public class TaskManagerTCPClient {
   public TaskManagerTCPClient(InetAddress inetAddress, int serverPort) {
     this.inetAddress = inetAddress;
     this.serverPort = serverPort;
-    initialize();
+    run();
   }
 
-  private void initialize() {
+  private boolean initialize() {
     try {
       // Open a socket for communication.
       socket = new Socket(inetAddress, serverPort);
@@ -47,16 +46,12 @@ public class TaskManagerTCPClient {
       is = socket.getInputStream();
       // Create data input stream.
       dis = new DataInputStream(is);
-      if (socket.isConnected())
-        run();
-      else {
-        Log.error("Server error");
-        System.exit(0);
-      }
+      if (socket.isConnected()) return true;
+      else return false;
     } catch (IOException ex) {
       Logger.getLogger(SimpleTcpClient.class.getName()).log(Level.SEVERE, null,
           ex);
-      System.out.println("error message: " + ex.getMessage());
+      return false;
     }
   }
 
@@ -68,9 +63,9 @@ public class TaskManagerTCPClient {
     System.out.println("Write DELETE to delete a task");
     System.out.println("Write POST to add a task");
 
-    String in;
+//    String in;
     while (true) {
-      in = null; // reset
+//      in = null; // reset
 
       // If user has input
       if (keyboard.hasNext()) {
@@ -101,21 +96,22 @@ public class TaskManagerTCPClient {
       }
 
       // If server has message
-      try {
-        if ((in = dis.readUTF()) != null) {
-          in = "Message from server: " + in;
-          System.out.println(in);
-          Log.log(in);
-        }
-      } catch (IOException e) {
-        Log.error(e.getMessage());
-      }
+//      try {
+//        if ((in = dis.readUTF()) != null) {
+//          in = "Message from server: " + in;
+//          System.out.println(in);
+//          Log.log(in);
+//        }
+//      } catch (IOException e) {
+//        Log.error(e.getMessage());
+//      }
     }
   }
 
   private void post() {
+    boolean ready = initialize();
     String request = "post";
-    if (check(request)) {
+    if (ready && check(request)) {
       // int id, String name, String date, String status, String description, String attendant
       System.out.println("Please enter the name of the task");
       String name = getString();
@@ -144,14 +140,22 @@ public class TaskManagerTCPClient {
       System.out.println("Please enter userID of the task attendant");
       int attendant = getInt();
       if(attendant < 0) return;
+      System.out.println("Sending...");
       // Create task
       // ID is redefined by server
       Task task = new Task(0, name, date, status, description, attendant);
       // Save task
-      ObjectMarshaller.marshall(task, dos);
-      System.out.println("Task saved");
+      try {
+        dos.writeUTF("start");
+        dos.flush();
+        ObjectMarshaller.marshall(task, dos);
+        dos.flush();
+        System.out.println("Task sent");
+      } catch (IOException e) {
+        System.out.println("Error saving task: "+e);
+      }
     }
-    // Return
+    close();
   }
   
   private void cancelRequest(){
@@ -164,9 +168,10 @@ public class TaskManagerTCPClient {
   }
 
   private void delete() {
+    boolean ready = initialize();
     String request = "delete";
     // Check if server is ready for request
-    if (check(request)) {
+    if (ready && check(request)) {
       // Get taskID from user
       System.out.println("Write taskID of the task you want to delete");
       int in = getInt();
@@ -176,34 +181,27 @@ public class TaskManagerTCPClient {
       }
       // Are you sure?
       System.out.println("Are you sure you want to delete? Y/N");
-      while (true) {
-        String line = getString();
-        if(line == null){
-          cancelRequest();
-          return;
-        }
-        if (line.equals("n")) {
-          return;
-        } else if (line.equals("y")) {
-          in = 0; // Don't delete anything
-          break;
-        }
+      String line = getString();
+      if (line.equals("n")) {
+        return;
       }
       // Delete task
       try {
-        dos.writeInt(in);
+        dos.writeUTF(""+in);
         dos.flush();
+        System.out.println("Sent delete command");
       } catch (IOException e) {
         Log.error(e.getMessage());
       }
     }
-    // Return
+    close();
   }
 
   private void put() {
+    boolean ready = initialize();
     String request = "put";
     // Check if server is ready for request
-    if (check(request)) {
+    if (ready && check(request)) {
       // Get taskID from user
       int id = getInt();
       if(id < 0){
@@ -220,40 +218,65 @@ public class TaskManagerTCPClient {
       // Get task
       Task task = null;
       try {
-        Calendar cal = (Calendar) ObjectMarshaller.getUnmarshaller(Calendar.class).unmarshal(dis);
-        ArrayList<Task> tasks = cal.getTasks();
-        if (tasks.isEmpty()) {
-          System.out.println("No task by that ID");
-          return;
-        }
-        task = tasks.get(0);
+        task = (Task) ObjectMarshaller.getUnmarshaller(Task.class).unmarshal(dis);
       } catch (JAXBException e) {
         Log.error(e.getMessage());
       }
       // List task as is
       System.out.println(task);
       // Which field does user want to edit?
-      while (true) {
-        System.out
-            .println("Which field do you want to change? Write 0 to save");
+      boolean loop = true;
+      while (loop) {
+        System.out.println("Which field do you want to change? Write 0 to save");
         int in = getInt();
         if(in < 0){
           cancelRequest();
           return;
         }
-        if (in == 0) break;
+        switch (in) {
+        case 0:
+          loop = false;
+          break;
+        case 1:
+          task.setId(getInt());
+          break;
+        case 2:
+          task.setName(getString());
+          break;
+        case 3:
+          task.setDate(getString());
+          break;
+        case 4:
+          task.setStatus(getString());
+          break;
+        case 5:
+          task.setDescription(getString());
+          break;
+        case 6:
+          task.setAttendantid(getInt());
+          break;
+        }
       }
       // Send task to server
-      ObjectMarshaller.marshall(task, dos);
+      try {
+        dos.writeUTF("start");
+        dos.flush();
+        ObjectMarshaller.marshall(task, dos);
+        dos.flush();
+        System.out.println("Task sent to server");
+      } catch (IOException e) {
+        System.out.println("Error putting task");
+      }
       System.out.println("Task saved");
     }
     // Return
   }
 
   private void get() {
+    boolean ready = initialize();
     String request = "get";
     // Check if server is ready for request
-    if (check(request)) {
+    if (ready && check(request)) {
       // Get userID from user
       System.out.println("Type userID. 0 will get you all tasks");
       int in = getInt();
@@ -271,11 +294,9 @@ public class TaskManagerTCPClient {
       // Receive calendar with tasks
       ArrayList<Task> tasks = null;
       try {
-        String response = dis.readUTF();
-        InputStream is = new ByteArrayInputStream(response.getBytes());
         Calendar cal = (Calendar) ObjectMarshaller.getUnmarshaller(Calendar.class).unmarshal(is);
         tasks = cal.getTasks();
-      } catch (JAXBException | IOException e) {
+      } catch (JAXBException e) {
         Log.error(e.getMessage());
       }
       // Print
@@ -289,7 +310,7 @@ public class TaskManagerTCPClient {
         }
       }
     }
-    // Return
+    close();
   }
 
   /**
@@ -311,17 +332,22 @@ public class TaskManagerTCPClient {
    * @return int
    */
   private int getInt() {
-    String in = keyboard.next().toLowerCase().trim();
+    boolean inputIsAccepted = false;
     int input = -1;
-    while (true)
+    do {
+      String in = keyboard.next().toLowerCase().trim();
       try {
         input = Integer.parseInt(in);
-        break;
+        inputIsAccepted = true;
       } catch (NumberFormatException e) {
         // Did the user want to cancel?
-        if (in.equals("q")) return -1;
-        System.out.println("Invalid userID. Please type a number or type Q to canel");
+        if (in.equals("q")) {
+          inputIsAccepted = true;
+          input = -1;
+        }
+        System.out.println("Invalid number. Please type a number or type Q to cancel");
       }
+    } while(!inputIsAccepted);
     return input;
   }
 

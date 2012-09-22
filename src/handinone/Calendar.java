@@ -18,8 +18,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "cal")
 @XmlType(propOrder={"users", "tasks"})
 public class Calendar {
-  private static HashMap<Integer, User> users = new HashMap<>();
-  private static HashMap<Integer, HashMap<Integer, Task>> tasks = new HashMap<>();
+  private HashMap<Integer, User> users = new HashMap<>();
+  private HashMap<Integer, HashMap<Integer, Task>> tasks = new HashMap<>();
 	
 	public Calendar() {}
 	
@@ -42,13 +42,23 @@ public class Calendar {
 		tasks.put(user.getId(), new HashMap<Integer, Task>());
 	}
 	
-	public void removeTask(int id){
+	public Task getTask(int id) {
+	  for(HashMap<Integer, Task> tsks : tasks.values()){
+      if(tsks.containsKey(id)){
+        return tsks.get(id);
+      }
+    }
+    return null;
+	}
+	
+	public int removeTask(int id){
 	  for(HashMap<Integer, Task> tsks : tasks.values()){
 	    if(tsks.containsKey(id)){
-	      tsks.remove(id);
-	      return;
+	      Task removed = tsks.remove(id);
+	      return (removed != null) ? removed.getAttendantid() : -1;
 	    }
 	  }
+	  return -1;
 	}
 	
 	public void removeUser(String userid) {
@@ -73,7 +83,7 @@ public class Calendar {
 		}
 	}
 
-	public void addTask(Task task) {
+	public void addTask(Task task) throws NullPointerException {
 		tasks.get(task.getAttendantid()).put(task.getId(), task);
 	}
 	
@@ -99,7 +109,7 @@ public class Calendar {
 		}
 	}
 	
-	public ArrayList<Task> getListOfTasks(int userid) {
+	public ArrayList<Task> getListOfTasks(int userid) throws NullPointerException {
 	  ArrayList<Task> tasksReturn = new ArrayList<Task>();
 	  tasksReturn.addAll(tasks.get(userid).values());
 	  return tasksReturn;
@@ -119,13 +129,17 @@ public class Calendar {
   public static void saveCalendar(Calendar calendar, File calendarfile) throws FileNotFoundException {
     ObjectMarshaller.marshall(calendar, new FileOutputStream(calendarfile));
   }
+  
+  public void marshallCalendar(File file) {
+    ObjectMarshaller.marshall(this, file);
+  }
 
 	public static void main (String[] args) {
 		Calendar cal = new Calendar();
 		
 		User user1 = new User("Niclas Tollstorff", "pw123");
 		User user2 = new User("Niels Rosen Abildgaard", "bieberrox");
-		User user3 = new User("Michael Søby Andersen", "bieberrox");
+		User user3 = new User("Michael Soeby Andersen", "bieberrox");
 		User user4 = new User("Claus L. Henriksen", "bieberrox");
 
 		Task task1 = new Task(1, "Do MDS Mandatory Exercise 1", "17-09-12", "nearly done", "Handin one", user1.getId());

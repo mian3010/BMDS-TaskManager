@@ -22,7 +22,7 @@ public enum TaskManagerTCPServer {
   INSTANCE;
   
   private Calendar calendar = new Calendar();
-  private static File calendarfile = new File("calendar.xml");
+  public static File calendarfile = new File("calendar.xml");
 
   /**
    * @author BieberFever
@@ -33,7 +33,7 @@ public enum TaskManagerTCPServer {
       TaskManagerTCPServer.INSTANCE.calendar = Calendar.loadCalendar(calendarfile);
       TaskManagerTCPServer.INSTANCE.run(7896);
     } catch (JAXBException|IOException e) {
-      System.out.println("Could not load or create calendar file");
+      System.out.println("Could not load or create calendar file: "+e);
     }
   }
   
@@ -59,17 +59,23 @@ public enum TaskManagerTCPServer {
         InetAddress client = ss.getInetAddress();
         DataInputStream dis = new DataInputStream(con.getInputStream());
         String request = dis.readUTF();
-        log(client, request);
         try {
+          //The next lines use Javas reflection to create the right object from the request
+          //Find the class with the name corresponding to the request
           @SuppressWarnings({ "unchecked" })
           Class<RequestParser> classDefinition = (Class<RequestParser>) Class.forName(RequestParser.getClassName(request));
+          //Set up a variable containing the types that the constructor should take
           @SuppressWarnings("rawtypes")
           Class[] constructorArgumentTypes = new Class[] {Socket.class, InetAddress.class};
+          //Set up a variable containing the actual arguments the constructor should take
           Object[] constructorArguments = new Object[] {con, client};
-          Constructor<RequestParser> constructor;
-          constructor = classDefinition.getConstructor(constructorArgumentTypes);
+          //Find the right constructor from the types it should take
+          Constructor<RequestParser> constructor = classDefinition.getConstructor(constructorArgumentTypes);
+          //Create an instance using the constructor, taking the arguments from the variable above
           RequestParser p = constructor.newInstance(constructorArguments);
+          //Start the thread object
           p.start();
+          //Respond that everything went well to the client
           DataOutputStream out = RequestParser.getOutputStream(con);
           RequestParser.writeUTF(out, request);
         } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {

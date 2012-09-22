@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "user")
 @XmlType(propOrder={"id", "name", "password"})
 public class User {
-	private static int nextId = 0;
+	private static int highestId = 0;
 	
 	private String name, password;
 	private int userId;
@@ -15,12 +15,13 @@ public class User {
 	/**
 	 * Creates an object in an unstable state, but is used by XML Reflection generation.
 	 */
-	private User() {}
+	@SuppressWarnings("unused")
+  private User() {}
 	
 	public User(String name, String password) {
 		this.name = name;
 		this.password = password;
-		this.userId = ++nextId;
+		this.userId = ++highestId;
 	}
 	
 	@XmlAttribute
@@ -30,6 +31,7 @@ public class User {
 	
 	public void setId(int id) {
 	  this.userId = id;
+	  if (highestId < id) highestId = id;
 	}
 
 	public String getName() {

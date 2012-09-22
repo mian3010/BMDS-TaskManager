@@ -1,6 +1,5 @@
 package handinone;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -20,11 +19,14 @@ public class RequestParserPOST extends RequestParser {
   }
 
   public void parseRequest(String request) throws IOException {
-    TaskManagerTCPServer.log(source, request);
     try {
-      Task task = (Task) ObjectMarshaller.getUnmarshaller(Task.class).unmarshal(new ByteArrayInputStream(request.getBytes()));
+      Task task = (Task) ObjectMarshaller.getUnmarshaller(Task.class).unmarshal(is);
+      task.setRightId();
       TaskManagerTCPServer.INSTANCE.getCalendar().addTask(task);
-    } catch (JAXBException e) {
+      TaskManagerTCPServer.INSTANCE.getCalendar().marshallCalendar(TaskManagerTCPServer.calendarfile);
+      TaskManagerTCPServer.log(source, "POST: Added task with id "+task.getId()+" for user "+task.getAttendantid());
+    } catch (JAXBException|NullPointerException e) {
+      TaskManagerTCPServer.log(source, "POST: Error adding. Maybe attendantid is wrong?");
       e.printStackTrace();
     }
   }

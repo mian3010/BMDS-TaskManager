@@ -18,13 +18,22 @@ public class RequestParserGET extends RequestParser {
   }
 
   public void parseRequest(String request) throws IOException {
-    TaskManagerTCPServer.log(source, request);
     Calendar cal = TaskManagerTCPServer.INSTANCE.getCalendar(); 
     int id = Integer.parseInt(request);
-    ArrayList<Task> taskList = cal.getListOfTasks(id);
-    Calendar cal2 = new Calendar();
-    cal2.addUser(cal.getUser(id));
-    cal2.setTasks(taskList);
-    ObjectMarshaller.marshall(cal2, out);
+    try {
+      Calendar cal2 = new Calendar();
+      if (id > 0) {
+        ArrayList<Task> taskList = cal.getListOfTasks(id);
+        cal2.addUser(cal.getUser(id));
+        cal2.setTasks(taskList);
+        TaskManagerTCPServer.log(source, "GET: Returned "+taskList.size()+" task(s) for user "+id);
+      } else {
+        cal2 = cal;
+        TaskManagerTCPServer.log(source, "GET: Returned "+cal2.getTasks().size()+" task(s) for all users"); //Potentially slow call
+      }
+      ObjectMarshaller.marshall(cal2, out);
+    } catch (NullPointerException e) {
+      TaskManagerTCPServer.log(source, "GET: No user found with id: "+id);
+    }
   }
 }
